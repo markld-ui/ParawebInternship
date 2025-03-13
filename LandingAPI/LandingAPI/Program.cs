@@ -1,24 +1,40 @@
-using LandingAPI.Data;
-using LandingAPI.Models;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using LandingAPI.Data;
+using LandingAPI;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-builder.Services.AddIdentity<User, IdentityRole>()
-    .AddEntityFrameworkStores<ApplicationDbContext>();
-
 builder.Services.AddControllers();
+builder.Services.AddTransient<Seed>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddDbContext<DataContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+
+});
 
 var app = builder.Build();
+
+// Seed data
+if (args.Length == 1 && args[0].ToLower() == "seeddata")
+{
+    SeedData(app);
+}
+
+void SeedData(IHost app)
+{
+    var scopeFactory = app.Services.GetRequiredService<IServiceScopeFactory>();
+
+    using (var scope = scopeFactory.CreateScope())
+    {
+        var seeder = scope.ServiceProvider.GetService<Seed>();
+        seeder.SeedDataContext();
+    }
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

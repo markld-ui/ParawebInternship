@@ -1,4 +1,4 @@
-@LandingAPI_HostAddress = http://localhost:5222
+@LandingAPI_HostAddress = http://localhost:5209
 
 GET {{LandingAPI_HostAddress}}/weatherforecast/
 Accept: application/json
