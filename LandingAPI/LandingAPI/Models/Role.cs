@@ -1,10 +1,15 @@
-﻿namespace LandingAPI.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+
+namespace LandingAPI.Models
 {
     /// <summary>
     /// Data-class for user roles
     /// </summary>
     public class Role
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int RoleId { get; set; }
         public required string Name { get; set; }
 
