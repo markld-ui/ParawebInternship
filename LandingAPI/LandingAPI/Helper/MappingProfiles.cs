@@ -8,7 +8,10 @@ namespace LandingAPI.Helper
     {
         public MappingProfiles()
         {
-            CreateMap<News, NewsDTO>(); 
+            CreateMap<News, NewsDTO>();
+            CreateMap<User, UserDTO>();
+            CreateMap<User, NewsDTO>();
+            CreateMap<Event, EventDTO>();
         }
     }
 }
