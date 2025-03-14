@@ -11,5 +11,6 @@ namespace LandingAPI.DTO
         public required DateTime EndDate { get; set; }
         public required string? Location { get; set; }
         public required string? ImageUrl { get; set; }
+        public required DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }
