@@ -12,6 +12,7 @@ namespace LandingAPI.Helper
             CreateMap<User, UserDTO>();
             CreateMap<User, NewsDTO>();
             CreateMap<Event, EventDTO>();
+            CreateMap<Files, FilesDTO>();
         }
     }
 }
