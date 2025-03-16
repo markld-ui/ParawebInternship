@@ -30,7 +30,7 @@ namespace LandingAPI.Controllers
         }
 
         [HttpGet("{id}")]
-        [ProducesResponseType(200, Type = typeof(IEnumerable<FilesDTO>))]
+        [ProducesResponseType(200, Type = typeof(FilesDTO))]
         [ProducesResponseType(400)]
         public IActionResult GetFile(int id)
         {
@@ -42,6 +42,32 @@ namespace LandingAPI.Controllers
 
             var file = _mapper.Map<FilesDTO>(_filesRepository.GetFileById(id));
             return Ok(file);
+        }
+
+        // Новый метод для получения файлов, связанных с новостью
+        [HttpGet("news/{newsId}")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<FilesDTO>))]
+        [ProducesResponseType(400)]
+        public IActionResult GetFilesByNewsId(int newsId)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            var files = _mapper.Map<List<FilesDTO>>(_filesRepository.GetFilesByNewsId(newsId));
+            return Ok(files);
+        }
+
+        // Новый метод для получения файлов, связанных с событием
+        [HttpGet("events/{eventId}")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<FilesDTO>))]
+        [ProducesResponseType(400)]
+        public IActionResult GetFilesByEventId(int eventId)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            var files = _mapper.Map<List<FilesDTO>>(_filesRepository.GetFilesByEventId(eventId));
+            return Ok(files);
         }
     }
 }

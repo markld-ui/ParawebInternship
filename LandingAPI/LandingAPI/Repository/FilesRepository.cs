@@ -30,5 +30,23 @@ namespace LandingAPI.Repository
         {
             return _context.Files.OrderBy(f => f.FileId).ToList();
         }
+
+        // Новый метод для получения файлов, связанных с новостью
+        public ICollection<Files> GetFilesByNewsId(int newsId)
+        {
+            return _context.NewsFiles
+                .Where(nf => nf.NewsId == newsId)
+                .Select(nf => nf.File)
+                .ToList();
+        }
+
+        // Новый метод для получения файлов, связанных с событием
+        public ICollection<Files> GetFilesByEventId(int eventId)
+        {
+            return _context.EventFiles
+                .Where(ef => ef.EventId == eventId)
+                .Select(ef => ef.File)
+                .ToList();
+        }
     }
 }

@@ -7,7 +7,10 @@ namespace LandingAPI.DTO
         public int FileId { get; set; }
         public required string FileName { get; set; }
         public required string FilePath { get; set; }
-        public int FileTypeId { get; set; }
         public DateTime UploadedAt { get; set; } = DateTime.UtcNow;
+
+        // Новые свойства для отображения связанных новостей и событий
+        public ICollection<int> NewsIds { get; set; } = new List<int>();
+        public ICollection<int> EventIds { get; set; } = new List<int>();
     }
 }
