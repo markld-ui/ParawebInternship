@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LandingAPI.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250313204846_InitialCreate")]
+    [Migration("20250315070801_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -24,36 +24,6 @@ namespace LandingAPI.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("LandingAPI.Models.AdminLog", b =>
-                {
-                    b.Property<int>("AdminLogId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AdminLogId"));
-
-                    b.Property<string>("Action")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("AdminId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("Timestamp")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("AdminLogId");
-
-                    b.HasIndex("AdminId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("AdminLogs");
-                });
 
             modelBuilder.Entity("LandingAPI.Models.Event", b =>
                 {
@@ -96,23 +66,6 @@ namespace LandingAPI.Migrations
                     b.ToTable("Events");
                 });
 
-            modelBuilder.Entity("LandingAPI.Models.FileType", b =>
-                {
-                    b.Property<int>("FileTypeId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FileTypeId"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("FileTypeId");
-
-                    b.ToTable("FileTypes");
-                });
-
             modelBuilder.Entity("LandingAPI.Models.Files", b =>
                 {
                     b.Property<int>("FileId")
@@ -132,9 +85,6 @@ namespace LandingAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("FileTypeId")
-                        .HasColumnType("int");
-
                     b.Property<int>("NewsId")
                         .HasColumnType("int");
 
@@ -144,8 +94,6 @@ namespace LandingAPI.Migrations
                     b.HasKey("FileId");
 
                     b.HasIndex("EventId");
-
-                    b.HasIndex("FileTypeId");
 
                     b.HasIndex("NewsId");
 
@@ -220,51 +168,28 @@ namespace LandingAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("RoleId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("UserId");
 
-                    b.HasIndex("RoleId");
-
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("LandingAPI.Models.UserEvent", b =>
+            modelBuilder.Entity("LandingAPI.Models.UserRole", b =>
                 {
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.Property<int>("EventId")
+                    b.Property<int>("RoleId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("JoinedAt")
-                        .HasColumnType("datetime2");
+                    b.HasKey("UserId", "RoleId");
 
-                    b.HasKey("UserId", "EventId");
+                    b.HasIndex("RoleId");
 
-                    b.HasIndex("EventId");
-
-                    b.ToTable("UserEvents");
-                });
-
-            modelBuilder.Entity("LandingAPI.Models.AdminLog", b =>
-                {
-                    b.HasOne("LandingAPI.Models.User", "Admin")
-                        .WithMany()
-                        .HasForeignKey("AdminId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("LandingAPI.Models.User", null)
-                        .WithMany("AdminLogs")
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("Admin");
+                    b.ToTable("UserRoles");
                 });
 
             modelBuilder.Entity("LandingAPI.Models.Event", b =>
@@ -286,21 +211,13 @@ namespace LandingAPI.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("LandingAPI.Models.FileType", "FileType")
-                        .WithMany("Files")
-                        .HasForeignKey("FileTypeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("LandingAPI.Models.News", "News")
                         .WithMany("Files")
                         .HasForeignKey("NewsId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Event");
-
-                    b.Navigation("FileType");
 
                     b.Navigation("News");
                 });
@@ -316,44 +233,26 @@ namespace LandingAPI.Migrations
                     b.Navigation("CreatedBy");
                 });
 
-            modelBuilder.Entity("LandingAPI.Models.User", b =>
+            modelBuilder.Entity("LandingAPI.Models.UserRole", b =>
                 {
                     b.HasOne("LandingAPI.Models.Role", "Role")
-                        .WithMany("Users")
+                        .WithMany("UserRoles")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Role");
-                });
-
-            modelBuilder.Entity("LandingAPI.Models.UserEvent", b =>
-                {
-                    b.HasOne("LandingAPI.Models.Event", "Event")
-                        .WithMany("UserEvents")
-                        .HasForeignKey("EventId")
+                    b.HasOne("LandingAPI.Models.User", "User")
+                        .WithMany("UserRoles")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("LandingAPI.Models.User", "User")
-                        .WithMany("UserEvents")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Event");
+                    b.Navigation("Role");
 
                     b.Navigation("User");
                 });
 
             modelBuilder.Entity("LandingAPI.Models.Event", b =>
-                {
-                    b.Navigation("Files");
-
-                    b.Navigation("UserEvents");
-                });
-
-            modelBuilder.Entity("LandingAPI.Models.FileType", b =>
                 {
                     b.Navigation("Files");
                 });
@@ -365,18 +264,16 @@ namespace LandingAPI.Migrations
 
             modelBuilder.Entity("LandingAPI.Models.Role", b =>
                 {
-                    b.Navigation("Users");
+                    b.Navigation("UserRoles");
                 });
 
             modelBuilder.Entity("LandingAPI.Models.User", b =>
                 {
-                    b.Navigation("AdminLogs");
-
                     b.Navigation("CreatedEvents");
 
                     b.Navigation("News");
 
-                    b.Navigation("UserEvents");
+                    b.Navigation("UserRoles");
                 });
 #pragma warning restore 612, 618
         }

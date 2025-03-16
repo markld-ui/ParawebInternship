@@ -13,12 +13,12 @@
         public string? Location { get; set; }
         public string? ImageUrl { get; set; }
 
-        // Связь с пользователем (One-to-Many: User -> Events)
-        public int CreatedById { get; set; } //FK
-        public User CreatedBy { get; set; } //navigation prop
+        public int CreatedById { get; set; }
+        public User CreatedBy { get; set; }
 
-        // Связь с файлами (One-to-Many: Event -> Files)
-        public ICollection<Files> Files { get; set; } = new List<Files>();
-        public  DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        // Связь с файлами через промежуточную таблицу
+        public ICollection<EventFiles> EventFiles { get; set; } = new List<EventFiles>();
+
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

@@ -1,8 +1,10 @@
 ﻿using LandingAPI.Models;
-using LandingAPI.Data;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace LandingAPI
+namespace LandingAPI.Data
 {
     public class Seed
     {
@@ -15,183 +17,211 @@ namespace LandingAPI
 
         public void SeedDataContext()
         {
+            // Ensure the database is created
+            _dataContext.Database.EnsureCreated();
+
+            // Seed Roles if they don't exist
             if (!_dataContext.Roles.Any())
             {
-                var roles = new List<Role> 
-                { 
-                    new ()
-                    {
-                        Name = "Admin",
-                        Users = new List<User>()
-                    },
-                    new ()
-                    {
-                        Name = "User",
-                        Users = new List<User>()
-                    },
+                var roles = new List<Role>
+                {
+                    new Role { Name = "Admin" },
+                    new Role { Name = "User" },
+                    new Role { Name = "Editor" }
                 };
                 _dataContext.Roles.AddRange(roles);
                 _dataContext.SaveChanges();
-                _dataContext.ChangeTracker.Clear();
-
             }
 
-            var adminRoleId = _dataContext.Roles.FirstOrDefault(r => r.Name == "Admin")?.RoleId;
-            if (adminRoleId == null)
-                throw new Exception("Admin role was not created correctly.");
-
-            var userRoleId = _dataContext.Roles.AsNoTracking().FirstOrDefault(r => r.Name == "User")?.RoleId;
-            if (userRoleId == null)
-                throw new Exception("User role was not created correctly.");
-
+            // Seed Users if they don't exist
             if (!_dataContext.Users.Any())
             {
-                var adminRole = _dataContext.Roles.FirstOrDefault(r => r.RoleId == adminRoleId.Value);
-                if (adminRole == null)
-                    throw new Exception("Admin role not found.");
+                var adminRole = _dataContext.Roles.FirstOrDefault(r => r.Name == "Admin");
+                var userRole = _dataContext.Roles.FirstOrDefault(r => r.Name == "User");
+                var editorRole = _dataContext.Roles.FirstOrDefault(r => r.Name == "Editor");
 
-                var userRole = _dataContext.Roles.FirstOrDefault(r => r.RoleId == userRoleId.Value);
-                if (userRole == null)
-                    throw new Exception("User role not found.");
+                if (adminRole == null || userRole == null || editorRole == null)
+                {
+                    throw new Exception("Required roles are missing for seeding users.");
+                }
 
                 var users = new List<User>
                 {
-                    new ()
+                    new User
                     {
                         Username = "admin",
                         Email = "admin@example.com",
                         PasswordHash = "admin",
-                        RoleId = adminRoleId.Value,
-                        Role = adminRole,
-                        News = new List<News>(),
-                        CreatedEvents = new List<Event>(),
-                        UserEvents = new List<UserEvent>()
+                        UserRoles = new List<UserRole>
+                        {
+                            new UserRole { Role = adminRole }
+                        }
                     },
-                    new ()
+                    new User
                     {
-                        Username = "user",
-                        Email = "user@example.com",
-                        PasswordHash = "user",
-                        RoleId = userRoleId.Value,
-                        Role = userRole,
-                        News = new List<News>(),
-                        CreatedEvents = new List<Event>(),
-                        UserEvents = new List<UserEvent>()
+                        Username = "user1",
+                        Email = "user1@example.com",
+                        PasswordHash = "user1",
+                        UserRoles = new List<UserRole>
+                        {
+                            new UserRole { Role = userRole }
+                        }
+                    },
+                    new User
+                    {
+                        Username = "user2",
+                        Email = "user2@example.com",
+                        PasswordHash = "user2",
+                        UserRoles = new List<UserRole>
+                        {
+                            new UserRole { Role = userRole }
+                        }
+                    },
+                    new User
+                    {
+                        Username = "editor",
+                        Email = "editor@example.com",
+                        PasswordHash = "editor",
+                        UserRoles = new List<UserRole>
+                        {
+                            new UserRole { Role = editorRole }
+                        }
                     }
                 };
                 _dataContext.Users.AddRange(users);
                 _dataContext.SaveChanges();
             }
 
+            // Seed News if they don't exist
+            if (!_dataContext.News.Any())
+            {
+                var adminUser = _dataContext.Users.FirstOrDefault(u => u.Username == "admin");
+                var editorUser = _dataContext.Users.FirstOrDefault(u => u.Username == "editor");
+
+                if (adminUser == null || editorUser == null)
+                {
+                    throw new Exception("Required users are missing for seeding news.");
+                }
+
+                var news = new List<News>
+                {
+                    new News
+                    {
+                        Title = "News 1",
+                        Content = "Content for News 1",
+                        ImageUrl = "https://example.com/news1.png",
+                        CreatedById = adminUser.UserId,
+                        CreatedBy = adminUser
+                    },
+                    new News
+                    {
+                        Title = "News 2",
+                        Content = "Content for News 2",
+                        ImageUrl = "https://example.com/news2.png",
+                        CreatedById = editorUser.UserId,
+                        CreatedBy = editorUser
+                    }
+                };
+                _dataContext.News.AddRange(news);
+                _dataContext.SaveChanges();
+            }
+
+            // Seed Events if they don't exist
             if (!_dataContext.Events.Any())
             {
-                var adminUser = _dataContext.Users.FirstOrDefault();
-                if (adminUser == null)
-                    throw new Exception("Admin user not found.");
+                var adminUser = _dataContext.Users.FirstOrDefault(u => u.Username == "admin");
+                var user1 = _dataContext.Users.FirstOrDefault(u => u.Username == "user1");
+
+                if (adminUser == null || user1 == null)
+                {
+                    throw new Exception("Required users are missing for seeding events.");
+                }
 
                 var events = new List<Event>
                 {
                     new Event
                     {
-                        CreatedById = adminUser.UserId,
-                        CreatedBy = adminUser,
-                        Title = "Test event",
-                        Description = "Test event description",
+                        Title = "Event 1",
+                        Description = "Description for Event 1",
                         StartDate = DateTime.UtcNow,
                         EndDate = DateTime.UtcNow.AddDays(1),
-                        Location = "Tomsk, Lenina 40",
-                        ImageUrl = "https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png",
-                        CreatedAt = DateTime.UtcNow,
-                        Files = new List<Files>(),
-                        UserEvents = new List<UserEvent>()
+                        Location = "Location 1",
+                        ImageUrl = "https://example.com/image1.png",
+                        CreatedById = adminUser.UserId,
+                        CreatedBy = adminUser
+                    },
+                    new Event
+                    {
+                        Title = "Event 2",
+                        Description = "Description for Event 2",
+                        StartDate = DateTime.UtcNow.AddDays(2),
+                        EndDate = DateTime.UtcNow.AddDays(3),
+                        Location = "Location 2",
+                        ImageUrl = "https://example.com/image2.png",
+                        CreatedById = user1.UserId,
+                        CreatedBy = user1
                     }
                 };
                 _dataContext.Events.AddRange(events);
                 _dataContext.SaveChanges();
             }
 
-            if (!_dataContext.FileTypes.Any())
-            {
-                var fileType = new FileType
-                {
-                    Name = "txt",
-                    Files = new List<Files>()
-                };
-                _dataContext.FileTypes.Add(fileType);
-                _dataContext.SaveChanges();
-            }
-
-            if (!_dataContext.News.Any())
-            {
-                var adminUser = _dataContext.Users.FirstOrDefault();
-                if (adminUser == null)
-                    throw new Exception("Admin user not found.");
-
-                var news = new List<News>
-                {
-                    new News
-                    {
-                        Title = "Breaking News",
-                        Content = "This is a breaking news content",
-                        ImageUrl = "https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png",
-                        CreatedById = adminUser.UserId,
-                        CreatedBy = adminUser,
-                        CreatedAt = DateTime.UtcNow
-                    },
-                    new News
-                    {
-                        Title = "The New York Times",
-                        Content = "This is The New York Times content",
-                        ImageUrl = "https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png",
-                        CreatedById = adminUser.UserId,
-                        CreatedBy = adminUser,
-                        CreatedAt = DateTime.UtcNow
-                    },
-                    new News
-                    {
-                        Title = "Rambler",
-                        Content = "This is Rambler content",
-                        ImageUrl = "https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png",
-                        CreatedById = adminUser.UserId,
-                        CreatedBy = adminUser,
-                        CreatedAt = DateTime.UtcNow
-                    }
-                };
-
-                _dataContext.News.AddRange(news);
-                _dataContext.SaveChanges();
-            }
-
-            var newsId = _dataContext.News.FirstOrDefault()?.NewsId;
-            if (newsId == null)
-                throw new Exception("News was not seeded properly.");
-
+            // Seed Files if they don't exist
             if (!_dataContext.Files.Any())
             {
-                var firstEvent = _dataContext.Events.FirstOrDefault();
-                var fileTypeId = _dataContext.FileTypes.FirstOrDefault()?.FileTypeId;
+                var news1 = _dataContext.News.FirstOrDefault(n => n.Title == "News 1");
+                var event1 = _dataContext.Events.FirstOrDefault(e => e.Title == "Event 1");
 
-                if (firstEvent == null)
-                    throw new Exception("Event was not seeded properly.");
-                if (fileTypeId == null)
-                    throw new Exception("FileType was not seeded properly.");
+                if (news1 == null || event1 == null)
+                {
+                    throw new Exception("Required news or events are missing for seeding files.");
+                }
 
                 var files = new List<Files>
                 {
                     new Files
                     {
-                        FileTypeId = fileTypeId.Value,
-                        EventId = firstEvent.EventId,
-                        FileName = "Test file",
-                        FilePath = "test/test.txt",
-                        UploadedAt = DateTime.UtcNow,
-                        NewsId = (int)newsId
+                        FileName = "file1.txt",
+                        FilePath = "/path/to/file1.txt",
+                        UploadedAt = DateTime.UtcNow
+                    },
+                    new Files
+                    {
+                        FileName = "file2.txt",
+                        FilePath = "/path/to/file2.txt",
+                        UploadedAt = DateTime.UtcNow
                     }
                 };
+
                 _dataContext.Files.AddRange(files);
+                _dataContext.SaveChanges();
+
+                // Seed NewsFiles and EventFiles
+                var file1 = files[0];
+                var file2 = files[1];
+
+                var newsFiles = new List<NewsFiles>
+                {
+                    new NewsFiles
+                    {
+                        NewsId = news1.NewsId,
+                        FileId = file1.FileId
+                    }
+                };
+
+                var eventFiles = new List<EventFiles>
+                {
+                    new EventFiles
+                    {
+                        EventId = event1.EventId,
+                        FileId = file2.FileId
+                    }
+                };
+
+                _dataContext.NewsFiles.AddRange(newsFiles);
+                _dataContext.EventFiles.AddRange(eventFiles);
                 _dataContext.SaveChanges();
             }
         }
-
     }
 }

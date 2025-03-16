@@ -12,19 +12,6 @@ namespace LandingAPI.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "FileTypes",
-                columns: table => new
-                {
-                    FileTypeId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_FileTypes", x => x.FileTypeId);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Roles",
                 columns: table => new
                 {
@@ -46,45 +33,11 @@ namespace LandingAPI.Migrations
                     Username = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    RoleId = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Users", x => x.UserId);
-                    table.ForeignKey(
-                        name: "FK_Users_Roles_RoleId",
-                        column: x => x.RoleId,
-                        principalTable: "Roles",
-                        principalColumn: "RoleId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AdminLogs",
-                columns: table => new
-                {
-                    AdminLogId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    AdminId = table.Column<int>(type: "int", nullable: false),
-                    Action = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Timestamp = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UserId = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AdminLogs", x => x.AdminLogId);
-                    table.ForeignKey(
-                        name: "FK_AdminLogs_Users_AdminId",
-                        column: x => x.AdminId,
-                        principalTable: "Users",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_AdminLogs_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "UserId");
                 });
 
             migrationBuilder.CreateTable(
@@ -137,28 +90,27 @@ namespace LandingAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "UserEvents",
+                name: "UserRoles",
                 columns: table => new
                 {
                     UserId = table.Column<int>(type: "int", nullable: false),
-                    EventId = table.Column<int>(type: "int", nullable: false),
-                    JoinedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    RoleId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserEvents", x => new { x.UserId, x.EventId });
+                    table.PrimaryKey("PK_UserRoles", x => new { x.UserId, x.RoleId });
                     table.ForeignKey(
-                        name: "FK_UserEvents_Events_EventId",
-                        column: x => x.EventId,
-                        principalTable: "Events",
-                        principalColumn: "EventId",
+                        name: "FK_UserRoles_Roles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "Roles",
+                        principalColumn: "RoleId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_UserEvents_Users_UserId",
+                        name: "FK_UserRoles_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -169,7 +121,6 @@ namespace LandingAPI.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     FileName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FilePath = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    FileTypeId = table.Column<int>(type: "int", nullable: false),
                     NewsId = table.Column<int>(type: "int", nullable: false),
                     EventId = table.Column<int>(type: "int", nullable: false),
                     UploadedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
@@ -184,28 +135,12 @@ namespace LandingAPI.Migrations
                         principalColumn: "EventId",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Files_FileTypes_FileTypeId",
-                        column: x => x.FileTypeId,
-                        principalTable: "FileTypes",
-                        principalColumn: "FileTypeId",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
                         name: "FK_Files_News_NewsId",
                         column: x => x.NewsId,
                         principalTable: "News",
                         principalColumn: "NewsId",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AdminLogs_AdminId",
-                table: "AdminLogs",
-                column: "AdminId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AdminLogs_UserId",
-                table: "AdminLogs",
-                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Events_CreatedById",
@@ -218,11 +153,6 @@ namespace LandingAPI.Migrations
                 column: "EventId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Files_FileTypeId",
-                table: "Files",
-                column: "FileTypeId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Files_NewsId",
                 table: "Files",
                 column: "NewsId");
@@ -233,13 +163,8 @@ namespace LandingAPI.Migrations
                 column: "CreatedById");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserEvents_EventId",
-                table: "UserEvents",
-                column: "EventId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Users_RoleId",
-                table: "Users",
+                name: "IX_UserRoles_RoleId",
+                table: "UserRoles",
                 column: "RoleId");
         }
 
@@ -247,28 +172,22 @@ namespace LandingAPI.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "AdminLogs");
-
-            migrationBuilder.DropTable(
                 name: "Files");
 
             migrationBuilder.DropTable(
-                name: "UserEvents");
-
-            migrationBuilder.DropTable(
-                name: "FileTypes");
-
-            migrationBuilder.DropTable(
-                name: "News");
+                name: "UserRoles");
 
             migrationBuilder.DropTable(
                 name: "Events");
 
             migrationBuilder.DropTable(
-                name: "Users");
+                name: "News");
 
             migrationBuilder.DropTable(
                 name: "Roles");
+
+            migrationBuilder.DropTable(
+                name: "Users");
         }
     }
 }
