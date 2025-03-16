@@ -30,10 +30,5 @@ namespace LandingAPI.Repository
         {
             return _context.Files.OrderBy(f => f.FileId).ToList();
         }
-
-        public ICollection<Files> GetFilesByType(string fileType)
-        {
-            return _context.Files.Where(f => f.FileType.Name == fileType).ToList();
-        }
     }
 }

@@ -43,17 +43,5 @@ namespace LandingAPI.Controllers
             var file = _mapper.Map<FilesDTO>(_filesRepository.GetFileById(id));
             return Ok(file);
         }
-
-        [HttpGet("search/")]
-        [ProducesResponseType(200, Type = typeof(IEnumerable<FilesDTO>))]
-        [ProducesResponseType(400)]
-        public IActionResult GetFilesByType(string fileType)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest();
-
-            var files = _mapper.Map<List<FilesDTO>>(_filesRepository.GetFilesByType(fileType));
-            return Ok(files);
-        }
     }
 }
