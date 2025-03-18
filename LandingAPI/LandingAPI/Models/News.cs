@@ -13,8 +13,9 @@
         public int CreatedById { get; set; }
         public User CreatedBy { get; set; }
 
-        // Связь с файлами через промежуточную таблицу
-        public ICollection<NewsFiles> NewsFiles { get; set; } = new List<NewsFiles>();
+        // Внешний ключ для связи с файлами
+        public int? FileId { get; set; }
+        public Files? File { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }

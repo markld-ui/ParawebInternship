@@ -16,8 +16,9 @@
         public int CreatedById { get; set; }
         public User CreatedBy { get; set; }
 
-        // Связь с файлами через промежуточную таблицу
-        public ICollection<EventFiles> EventFiles { get; set; } = new List<EventFiles>();
+        // Внешний ключ для связи с файлами
+        public int? FileId { get; set; }
+        public Files? File { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
