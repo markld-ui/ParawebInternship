@@ -92,91 +92,9 @@ namespace LandingAPI.Data
                 _dataContext.SaveChanges();
             }
 
-            // Seed News if they don't exist
-            if (!_dataContext.News.Any())
-            {
-                var adminUser = _dataContext.Users.FirstOrDefault(u => u.Username == "admin");
-                var editorUser = _dataContext.Users.FirstOrDefault(u => u.Username == "editor");
-
-                if (adminUser == null || editorUser == null)
-                {
-                    throw new Exception("Required users are missing for seeding news.");
-                }
-
-                var news = new List<News>
-                {
-                    new News
-                    {
-                        Title = "News 1",
-                        Content = "Content for News 1",
-                        ImageUrl = "https://example.com/news1.png",
-                        CreatedById = adminUser.UserId,
-                        CreatedBy = adminUser
-                    },
-                    new News
-                    {
-                        Title = "News 2",
-                        Content = "Content for News 2",
-                        ImageUrl = "https://example.com/news2.png",
-                        CreatedById = editorUser.UserId,
-                        CreatedBy = editorUser
-                    }
-                };
-                _dataContext.News.AddRange(news);
-                _dataContext.SaveChanges();
-            }
-
-            // Seed Events if they don't exist
-            if (!_dataContext.Events.Any())
-            {
-                var adminUser = _dataContext.Users.FirstOrDefault(u => u.Username == "admin");
-                var user1 = _dataContext.Users.FirstOrDefault(u => u.Username == "user1");
-
-                if (adminUser == null || user1 == null)
-                {
-                    throw new Exception("Required users are missing for seeding events.");
-                }
-
-                var events = new List<Event>
-                {
-                    new Event
-                    {
-                        Title = "Event 1",
-                        Description = "Description for Event 1",
-                        StartDate = DateTime.UtcNow,
-                        EndDate = DateTime.UtcNow.AddDays(1),
-                        Location = "Location 1",
-                        ImageUrl = "https://example.com/image1.png",
-                        CreatedById = adminUser.UserId,
-                        CreatedBy = adminUser
-                    },
-                    new Event
-                    {
-                        Title = "Event 2",
-                        Description = "Description for Event 2",
-                        StartDate = DateTime.UtcNow.AddDays(2),
-                        EndDate = DateTime.UtcNow.AddDays(3),
-                        Location = "Location 2",
-                        ImageUrl = "https://example.com/image2.png",
-                        CreatedById = user1.UserId,
-                        CreatedBy = user1
-                    }
-                };
-                _dataContext.Events.AddRange(events);
-                _dataContext.SaveChanges();
-            }
-
             // Seed Files if they don't exist
             if (!_dataContext.Files.Any())
             {
-                var news1 = _dataContext.News.FirstOrDefault(n => n.Title == "News 1");
-                var event1 = _dataContext.Events.FirstOrDefault(e => e.Title == "Event 1");
-
-                if (news1 == null || event1 == null)
-                {
-                    throw new Exception("Required news or events are missing for seeding files.");
-                }
-
                 var files = new List<Files>
                 {
                     new Files
@@ -195,31 +113,85 @@ namespace LandingAPI.Data
 
                 _dataContext.Files.AddRange(files);
                 _dataContext.SaveChanges();
+            }
 
-                // Seed NewsFiles and EventFiles
-                var file1 = files[0];
-                var file2 = files[1];
+            // Seed News if they don't exist
+            if (!_dataContext.News.Any())
+            {
+                var adminUser = _dataContext.Users.FirstOrDefault(u => u.Username == "admin");
+                var editorUser = _dataContext.Users.FirstOrDefault(u => u.Username == "editor");
+                var file1 = _dataContext.Files.FirstOrDefault(f => f.FileName == "file1.txt");
 
-                var newsFiles = new List<NewsFiles>
+                if (adminUser == null || editorUser == null || file1 == null)
                 {
-                    new NewsFiles
+                    throw new Exception("Required users or files are missing for seeding news.");
+                }
+
+                var news = new List<News>
+                {
+                    new News
                     {
-                        NewsId = news1.NewsId,
-                        FileId = file1.FileId
+                        Title = "News 1",
+                        Content = "Content for News 1",
+                        CreatedById = adminUser.UserId,
+                        CreatedBy = adminUser,
+                        FileId = file1.FileId,
+                        File = file1
+                    },
+                    new News
+                    {
+                        Title = "News 2",
+                        Content = "Content for News 2",
+                        CreatedById = editorUser.UserId,
+                        CreatedBy = editorUser,
+                        FileId = null // Пример без привязки к файлу
                     }
                 };
 
-                var eventFiles = new List<EventFiles>
+                _dataContext.News.AddRange(news);
+                _dataContext.SaveChanges();
+            }
+
+            // Seed Events if they don't exist
+            if (!_dataContext.Events.Any())
+            {
+                var adminUser = _dataContext.Users.FirstOrDefault(u => u.Username == "admin");
+                var user1 = _dataContext.Users.FirstOrDefault(u => u.Username == "user1");
+                var file2 = _dataContext.Files.FirstOrDefault(f => f.FileName == "file2.txt");
+
+                if (adminUser == null || user1 == null || file2 == null)
                 {
-                    new EventFiles
+                    throw new Exception("Required users or files are missing for seeding events.");
+                }
+
+                var events = new List<Event>
+                {
+                    new Event
                     {
-                        EventId = event1.EventId,
-                        FileId = file2.FileId
+                        Title = "Event 1",
+                        Description = "Description for Event 1",
+                        StartDate = DateTime.UtcNow,
+                        EndDate = DateTime.UtcNow.AddDays(1),
+                        Location = "Location 1",
+                        CreatedById = adminUser.UserId,
+                        CreatedBy = adminUser,
+                        FileId = file2.FileId,
+                        File = file2
+                    },
+                    new Event
+                    {
+                        Title = "Event 2",
+                        Description = "Description for Event 2",
+                        StartDate = DateTime.UtcNow.AddDays(2),
+                        EndDate = DateTime.UtcNow.AddDays(3),
+                        Location = "Location 2",
+                        CreatedById = user1.UserId,
+                        CreatedBy = user1,
+                        FileId = null // Пример без привязки к файлу
                     }
                 };
 
-                _dataContext.NewsFiles.AddRange(newsFiles);
-                _dataContext.EventFiles.AddRange(eventFiles);
+                _dataContext.Events.AddRange(events);
                 _dataContext.SaveChanges();
             }
         }
