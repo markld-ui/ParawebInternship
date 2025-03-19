@@ -4,13 +4,13 @@ namespace LandingAPI.Interfaces
 {
     public interface IFilesRepository
     {
-        ICollection<Files> GetFiles();
-        Files GetFileById(int id);
-        bool FileExistsById(int id);
-        bool FileExistsByName(string name);
+        Task<ICollection<Files>> GetFilesAsync();
+        Task<Files> GetFileByIdAsync(int id);
+        Task<bool> FileExistsByIdAsync(int id);
+        Task<bool> FileExistsByNameAsync(string name);
 
         // Новые методы для получения файлов, связанных с новостями и событиями
-        Files GetFileByNewsId(int newsId);
-        Files GetFileByEventId(int eventId);
+        Task<Files> GetFileByNewsIdAsync(int newsId);
+        Task<Files> GetFileByEventIdAsync(int eventId);
     }
 }

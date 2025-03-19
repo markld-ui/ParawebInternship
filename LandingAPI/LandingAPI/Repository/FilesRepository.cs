@@ -1,6 +1,7 @@
 ﻿using LandingAPI.Models;
 using LandingAPI.Interfaces;
 using LandingAPI.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace LandingAPI.Repository
 {
@@ -12,42 +13,42 @@ namespace LandingAPI.Repository
             _context = context;
         }
 
-        public bool FileExistsById(int id)
+        public async Task<bool> FileExistsByIdAsync(int id)
         {
-            return _context.Files.Any(f => f.FileId == id);
+            return await _context.Files.AnyAsync(f => f.FileId == id);
         }
 
-        public bool FileExistsByName(string name)
+        public async Task<bool> FileExistsByNameAsync(string name)
         {
-            return _context.Files.Any(f => f.FileName == name);
+            return await _context.Files.AnyAsync(f => f.FileName == name);
         }
 
-        public Files GetFileById(int id)
+        public async Task<Files> GetFileByIdASync(int id)
         {
-            return _context.Files.Where(f => f.FileId == id).FirstOrDefault();
+            return await _context.Files.Where(f => f.FileId == id).FirstOrDefaultAsync();
         }
 
-        public ICollection<Files> GetFiles()
+        public async Task<ICollection<Files>> GetFilesAsync()
         {
-            return _context.Files.OrderBy(f => f.FileId).ToList();
+            return await _context.Files.OrderBy(f => f.FileId).ToListAsync();
         }
 
         // Новый метод для получения файла, связанного с новостью
-        public Files GetFileByNewsId(int newsId)
+        public async Task<Files> GetFileByNewsIdAsync(int newsId)
         {
-            return _context.News
+            return await _context.News
                 .Where(n => n.NewsId == newsId)
                 .Select(n => n.File)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
         }
 
         // Новый метод для получения файла, связанного с событием
-        public Files GetFileByEventId(int eventId)
+        public async Task<Files> GetFileByEventIdAsync(int eventId)
         {
-            return _context.Events
+            return await _context.Events
                 .Where(e => e.EventId == eventId)
                 .Select(e => e.File)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
         }
     }
 }

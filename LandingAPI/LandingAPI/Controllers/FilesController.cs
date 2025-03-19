@@ -3,6 +3,7 @@ using LandingAPI.DTO;
 using Microsoft.AspNetCore.Mvc;
 using AutoMapper;
 using LandingAPI.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace LandingAPI.Controllers
 {
@@ -20,58 +21,62 @@ namespace LandingAPI.Controllers
 
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<FilesDTO>), 200)]
-        public IActionResult GetFiles()
+        public async Task<IActionResult> GetFilesAsync()
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var files = _mapper.Map<List<FilesDTO>>(_filesRepository.GetFiles());
-            return Ok(files);
+            var files = await _filesRepository.GetFilesAsync();
+            var filesDtos = _mapper.Map<List<FilesDTO>>(files);
+            return Ok(filesDtos);
         }
 
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(IEnumerable<FilesDTO>), 200)]
         [ProducesResponseType(400)]
-        public IActionResult GetFile(int id)
+        public async Task<IActionResult> GetFileAsync(int id)
         {
-            if (!_filesRepository.FileExistsById(id))
+            if (!await _filesRepository.FileExistsByIdAsync(id))
                 return NotFound();
 
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            var file = _mapper.Map<FilesDTO>(_filesRepository.GetFileById(id));
-            return Ok(file);
+            var file = await _filesRepository.GetFileByIdAsync(id);
+            var fileDtos = _mapper.Map<FilesDTO>(file);
+            return Ok(fileDtos);
         }
 
         [HttpGet("news/{newsId}")]
         [ProducesResponseType(typeof(IEnumerable<FilesDTO>), 200)]
         [ProducesResponseType(400)]
-        public IActionResult GetFileByNewsId(int newsId)
+        public async Task<IActionResult> GetFileByNewsId(int newsId)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            var file = _mapper.Map<FilesDTO>(_filesRepository.GetFileByNewsId(newsId));
-            if (file == null)
+            var file = await _filesRepository.GetFileByNewsIdAsync(newsId);
+            var fileDtos = _mapper.Map<FilesDTO>(file);
+            if (fileDtos == null)
                 return NotFound();
 
-            return Ok(file);
+            return Ok(fileDtos);
         }
 
         [HttpGet("events/{eventId}")]
         [ProducesResponseType(typeof(IEnumerable<FilesDTO>), 200)]
         [ProducesResponseType(400)]
-        public IActionResult GetFileByEventId(int eventId)
+        public async Task<IActionResult> GetFileByEventId(int eventId)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            var file = _mapper.Map<FilesDTO>(_filesRepository.GetFileByEventId(eventId));
-            if (file == null)
+            var file = _filesRepository.GetFileByEventIdAsync(eventId);
+            var fileDtos = _mapper.Map<FilesDTO>(file);
+            if (fileDtos == null)
                 return NotFound();
 
-            return Ok(file);
+            return Ok(fileDtos);
         }
     }
 }
