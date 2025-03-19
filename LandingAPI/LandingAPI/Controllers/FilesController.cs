@@ -1,9 +1,9 @@
-﻿using LandingAPI.Interfaces;
-using LandingAPI.DTO;
+﻿using LandingAPI.DTO;
 using Microsoft.AspNetCore.Mvc;
 using AutoMapper;
 using LandingAPI.Models;
 using Microsoft.EntityFrameworkCore;
+using LandingAPI.Interfaces.Repositories;
 
 namespace LandingAPI.Controllers
 {

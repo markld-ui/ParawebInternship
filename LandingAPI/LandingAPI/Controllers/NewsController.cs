@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using LandingAPI.DTO;
-using LandingAPI.Interfaces;
+using LandingAPI.Interfaces.Repositories;
 using LandingAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

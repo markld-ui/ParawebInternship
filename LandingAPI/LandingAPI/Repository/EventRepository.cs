@@ -1,8 +1,8 @@
 ﻿using LandingAPI.Models;
-using LandingAPI.Interfaces;
 using LandingAPI.Data;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using LandingAPI.Interfaces.Repositories;
 
 namespace LandingAPI.Repository
 {

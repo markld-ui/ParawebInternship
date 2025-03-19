@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using LandingAPI.Data;
 using LandingAPI;
-using LandingAPI.Interfaces;
 using LandingAPI.Repository;
-using LandingAPI.Services;
+using LandingAPI.Interfaces.Repositories;
+using LandingAPI.Services.Seeding;
 
 var builder = WebApplication.CreateBuilder(args);
 

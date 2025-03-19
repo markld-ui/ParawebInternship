@@ -1,6 +1,6 @@
 ﻿using LandingAPI.Models;
 
-namespace LandingAPI.Interfaces
+namespace LandingAPI.Interfaces.Repositories
 {
     public interface IUserRepository
     {

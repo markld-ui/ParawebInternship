@@ -1,5 +1,5 @@
 ﻿using LandingAPI.Data;
-using LandingAPI.Interfaces;
+using LandingAPI.Interfaces.Repositories;
 using LandingAPI.Models;
 using Microsoft.EntityFrameworkCore;
 

@@ -1,6 +1,6 @@
 ﻿using LandingAPI.Data;
 
-namespace LandingAPI.Services
+namespace LandingAPI.Services.Seeding
 {
     public static class SeedExtensions
     {

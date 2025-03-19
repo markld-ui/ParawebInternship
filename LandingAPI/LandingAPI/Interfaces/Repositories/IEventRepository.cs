@@ -1,7 +1,7 @@
 ﻿using LandingAPI.Models;
 using System.Threading.Tasks;
 
-namespace LandingAPI.Interfaces
+namespace LandingAPI.Interfaces.Repositories
 {
     public interface IEventRepository
     {

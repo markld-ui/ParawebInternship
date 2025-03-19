@@ -1,10 +1,11 @@
-﻿using LandingAPI.Models;
+﻿using LandingAPI.Data;
+using LandingAPI.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace LandingAPI.Data
+namespace LandingAPI.Services.Seeding
 {
     public class Seed
     {

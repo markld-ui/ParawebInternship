@@ -1,7 +1,7 @@
 ﻿using LandingAPI.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace LandingAPI.Interfaces
+namespace LandingAPI.Interfaces.Repositories
 {
     public interface INewsRepository
     {
