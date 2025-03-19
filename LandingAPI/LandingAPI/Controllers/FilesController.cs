@@ -27,6 +27,9 @@ namespace LandingAPI.Controllers
                 return BadRequest(ModelState);
 
             var files = await _filesRepository.GetFilesAsync();
+            if (files == null)
+                return NotFound();
+
             var filesDtos = _mapper.Map<List<FilesDTO>>(files);
             return Ok(filesDtos);
         }
@@ -56,6 +59,9 @@ namespace LandingAPI.Controllers
                 return BadRequest();
 
             var file = await _filesRepository.GetFileByNewsIdAsync(newsId);
+            if (file == null)
+                return NotFound();
+
             var fileDtos = _mapper.Map<FilesDTO>(file);
             if (fileDtos == null)
                 return NotFound();
@@ -72,6 +78,9 @@ namespace LandingAPI.Controllers
                 return BadRequest();
 
             var file = _filesRepository.GetFileByEventIdAsync(eventId);
+            if (file == null)
+                return NotFound();
+
             var fileDtos = _mapper.Map<FilesDTO>(file);
             if (fileDtos == null)
                 return NotFound();

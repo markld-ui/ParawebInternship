@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using LandingAPI.DTO;
 using LandingAPI.Interfaces;
+using LandingAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LandingAPI.Controllers
@@ -28,6 +29,9 @@ namespace LandingAPI.Controllers
                 return BadRequest(ModelState);
 
             var events = await _eventRepository.GetEventsAsync();
+            if (events == null)
+                return NotFound();
+
             var eventDtos = _mapper.Map<List<EventDTO>>(events);
             return Ok(eventDtos);
         }
@@ -57,6 +61,9 @@ namespace LandingAPI.Controllers
                 return BadRequest();
 
             var events = await _eventRepository.GetEventsByUserIdAsync(userId);
+            if (events == null)
+                return NotFound();
+
             var eventDtos = _mapper.Map<List<EventDTO>>(events);
             return Ok(eventDtos);
         }

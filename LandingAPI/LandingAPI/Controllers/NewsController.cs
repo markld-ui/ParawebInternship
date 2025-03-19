@@ -27,6 +27,9 @@ namespace LandingAPI.Controllers
                 return BadRequest(ModelState);
 
             var news = await _newsRepository.GetNewsAsync();
+            if (news == null)
+                return NotFound();
+
             var newsDtos = _mapper.Map<List<NewsDTO>>(news);
             return Ok(newsDtos);
         }
@@ -39,11 +42,11 @@ namespace LandingAPI.Controllers
             if (!await _newsRepository.NewsExistsAsync(id))
                 return NotFound();
 
-            var news = await _newsRepository.GetNewsAsync(id);
-            var newsDtos = _mapper.Map<NewsDTO>(news);
-
             if (!ModelState.IsValid)
                 return BadRequest();
+
+            var news = await _newsRepository.GetNewsAsync(id);
+            var newsDtos = _mapper.Map<NewsDTO>(news);
 
             return Ok(newsDtos);
         }

@@ -27,6 +27,9 @@ namespace LandingAPI.Controllers
                 return BadRequest(ModelState);
 
             var users = await _userRepository.GetUsersAsync();
+            if (users == null)
+                return NotFound();
+
             var usersDtos = _mapper.Map<List<UserDTO>>(users);
             return Ok(usersDtos);
         }
