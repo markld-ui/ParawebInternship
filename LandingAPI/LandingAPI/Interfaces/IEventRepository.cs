@@ -1,13 +1,14 @@
 ﻿using LandingAPI.Models;
+using System.Threading.Tasks;
 
 namespace LandingAPI.Interfaces
 {
     public interface IEventRepository
     {
-        ICollection<Event> GetEvents();
-        Event GetEventById(int id);
-        ICollection<Event> GetEventsByUserId(int userId);
-        bool EventExistsById(int id);
+        Task<ICollection<Event>> GetEventsAsync();
+        Task<Event> GetEventByIdAsync(int id);
+        Task<ICollection<Event>> GetEventsByUserIdAsync(int userId);
+        Task<bool> EventExistsByIdAsync(int id);
 
     }
 }

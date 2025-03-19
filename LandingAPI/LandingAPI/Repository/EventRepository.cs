@@ -1,6 +1,8 @@
 ﻿using LandingAPI.Models;
 using LandingAPI.Interfaces;
 using LandingAPI.Data;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace LandingAPI.Repository
 {
@@ -12,25 +14,25 @@ namespace LandingAPI.Repository
             _context = context;
         }
 
-        public bool EventExistsById(int id)
+        public async Task<bool> EventExistsByIdAsync(int id)
         {
-            return _context.Events.Any(e => e.EventId == id);
+            return await _context.Events.AnyAsync(e => e.EventId == id);
         }
 
 
-        public Event GetEventById(int id)
+        public async Task<Event> GetEventByIdAsync(int id)
         {
-            return _context.Events.Where(e => e.EventId == id).FirstOrDefault();
+            return await _context.Events.FirstOrDefaultAsync(e => e.EventId == id);
         }
 
-        public ICollection<Event> GetEvents()
+        public async Task<ICollection<Event>> GetEventsAsync()
         {
-            return _context.Events.OrderBy(e => e.EventId).ToList();
+            return await _context.Events.OrderBy(e => e.EventId).ToListAsync();
         }
 
-        public ICollection<Event> GetEventsByUserId(int userId)
+        public async Task<ICollection<Event>> GetEventsByUserIdAsync(int userId)
         {
-            return _context.Events.Where(e => e.CreatedById == userId).ToList();
+            return await _context.Events.Where(e => e.CreatedById == userId).ToListAsync();
         }
     }
 }
