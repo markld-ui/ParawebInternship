@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LandingAPI.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250315070801_InitialCreate")]
+    [Migration("20250319033159_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -46,10 +46,11 @@ namespace LandingAPI.Migrations
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("ImageUrl")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("FileId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Location")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("StartDate")
@@ -63,6 +64,8 @@ namespace LandingAPI.Migrations
 
                     b.HasIndex("CreatedById");
 
+                    b.HasIndex("FileId");
+
                     b.ToTable("Events");
                 });
 
@@ -74,9 +77,6 @@ namespace LandingAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FileId"));
 
-                    b.Property<int>("EventId")
-                        .HasColumnType("int");
-
                     b.Property<string>("FileName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -85,17 +85,10 @@ namespace LandingAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("NewsId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("UploadedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("FileId");
-
-                    b.HasIndex("EventId");
-
-                    b.HasIndex("NewsId");
 
                     b.ToTable("Files");
                 });
@@ -118,8 +111,8 @@ namespace LandingAPI.Migrations
                     b.Property<int>("CreatedById")
                         .HasColumnType("int");
 
-                    b.Property<string>("ImageUrl")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("FileId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -128,6 +121,8 @@ namespace LandingAPI.Migrations
                     b.HasKey("NewsId");
 
                     b.HasIndex("CreatedById");
+
+                    b.HasIndex("FileId");
 
                     b.ToTable("News");
                 });
@@ -162,7 +157,7 @@ namespace LandingAPI.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
@@ -173,6 +168,9 @@ namespace LandingAPI.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("UserId");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
 
                     b.ToTable("Users");
                 });
@@ -200,26 +198,14 @@ namespace LandingAPI.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("LandingAPI.Models.Files", "File")
+                        .WithMany()
+                        .HasForeignKey("FileId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.Navigation("CreatedBy");
-                });
 
-            modelBuilder.Entity("LandingAPI.Models.Files", b =>
-                {
-                    b.HasOne("LandingAPI.Models.Event", "Event")
-                        .WithMany("Files")
-                        .HasForeignKey("EventId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("LandingAPI.Models.News", "News")
-                        .WithMany("Files")
-                        .HasForeignKey("NewsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Event");
-
-                    b.Navigation("News");
+                    b.Navigation("File");
                 });
 
             modelBuilder.Entity("LandingAPI.Models.News", b =>
@@ -230,7 +216,14 @@ namespace LandingAPI.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("LandingAPI.Models.Files", "File")
+                        .WithMany()
+                        .HasForeignKey("FileId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.Navigation("CreatedBy");
+
+                    b.Navigation("File");
                 });
 
             modelBuilder.Entity("LandingAPI.Models.UserRole", b =>
@@ -250,16 +243,6 @@ namespace LandingAPI.Migrations
                     b.Navigation("Role");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("LandingAPI.Models.Event", b =>
-                {
-                    b.Navigation("Files");
-                });
-
-            modelBuilder.Entity("LandingAPI.Models.News", b =>
-                {
-                    b.Navigation("Files");
                 });
 
             modelBuilder.Entity("LandingAPI.Models.Role", b =>
