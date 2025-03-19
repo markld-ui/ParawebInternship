@@ -2,6 +2,7 @@
 using LandingAPI.Interfaces;
 using LandingAPI.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace LandingAPI.Repository
 {
@@ -13,33 +14,33 @@ namespace LandingAPI.Repository
             _context = context;
         }
 
-        public ICollection<User> GetUsers()
+        public async Task<ICollection<User>> GetUsersAsync()
         {
-            return _context.Users.OrderBy(u => u.UserId).ToList();
+            return await _context.Users.OrderBy(u => u.UserId).ToListAsync();
         }
 
-        public User GetUserById(int id)
+        public async Task<User> GetUserByIdAsync(int id)
         {
-            return _context.Users.Where(n => n.UserId == id).FirstOrDefault();
+            return await _context.Users.Where(n => n.UserId == id).FirstOrDefaultAsync();
         }
 
-        public User GetUserByName(string username)
+        public async Task<User> GetUserByNameAsync(string username)
         {
-            return _context.Users.Where(n => n.Username == username).FirstOrDefault();
+            return await _context.Users.Where(n => n.Username == username).FirstOrDefaultAsync();
         }
 
-        public ICollection<News> GetNewsByUserId(int userId)
+        public async Task<ICollection<News>> GetNewsByUserIdAsync(int userId)
         {
-            return _context.News.Where(n => n.CreatedById == userId).ToList();
+            return await _context.News.Where(n => n.CreatedById == userId).ToListAsync();
         }
-        public bool UserExistsById(int id)
+        public async Task<bool> UserExistsByIdAsync(int id)
         {
-            return _context.Users.Any(n => n.UserId == id);
+            return await _context.Users.AnyAsync(n => n.UserId == id);
         }
 
-        public bool UserExistsByName(string username)
+        public async Task<bool> UserExistsByNameAsync(string username)
         {
-            return _context.Users.Any(n => n.Username == username);
+            return await _context.Users.AnyAsync(n => n.Username == username);
         }
     }
 }

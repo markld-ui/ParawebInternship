@@ -4,11 +4,11 @@ namespace LandingAPI.Interfaces
 {
     public interface IUserRepository
     {
-        ICollection<User> GetUsers();
-        User GetUserById(int id);
-        User GetUserByName(string username);
-        ICollection<News> GetNewsByUserId(int userId);
-        bool UserExistsById(int id);
-        bool UserExistsByName(string username);
+        Task<ICollection<User>> GetUsersAsync();
+        Task<User> GetUserByIdAsync(int id);
+        Task<User> GetUserByNameAsync(string username);
+        Task<ICollection<News>> GetNewsByUserIdAsync(int userId);
+        Task<bool> UserExistsByIdAsync(int id);
+        Task<bool> UserExistsByNameAsync(string username);
     }
 }
