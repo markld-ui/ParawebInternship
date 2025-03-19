@@ -11,6 +11,7 @@ namespace LandingAPI.Repository
         {
             _context = context;
         }
+
         public bool FileExistsById(int id)
         {
             return _context.Files.Any(f => f.FileId == id);
@@ -31,22 +32,22 @@ namespace LandingAPI.Repository
             return _context.Files.OrderBy(f => f.FileId).ToList();
         }
 
-        // Новый метод для получения файлов, связанных с новостью
-        public ICollection<Files> GetFilesByNewsId(int newsId)
+        // Новый метод для получения файла, связанного с новостью
+        public Files GetFileByNewsId(int newsId)
         {
-            return _context.NewsFiles
-                .Where(nf => nf.NewsId == newsId)
-                .Select(nf => nf.File)
-                .ToList();
+            return _context.News
+                .Where(n => n.NewsId == newsId)
+                .Select(n => n.File)
+                .FirstOrDefault();
         }
 
-        // Новый метод для получения файлов, связанных с событием
-        public ICollection<Files> GetFilesByEventId(int eventId)
+        // Новый метод для получения файла, связанного с событием
+        public Files GetFileByEventId(int eventId)
         {
-            return _context.EventFiles
-                .Where(ef => ef.EventId == eventId)
-                .Select(ef => ef.File)
-                .ToList();
+            return _context.Events
+                .Where(e => e.EventId == eventId)
+                .Select(e => e.File)
+                .FirstOrDefault();
         }
     }
 }
