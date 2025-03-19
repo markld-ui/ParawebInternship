@@ -23,7 +23,7 @@ namespace LandingAPI.Repository
             return await _context.Files.AnyAsync(f => f.FileName == name);
         }
 
-        public async Task<Files> GetFileByIdASync(int id)
+        public async Task<Files> GetFileByIdAsync(int id)
         {
             return await _context.Files.Where(f => f.FileId == id).FirstOrDefaultAsync();
         }
