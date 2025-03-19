@@ -25,7 +25,9 @@ namespace LandingAPI.Repository
 
         public async Task<News> GetNewsByTitleAsync(string title)
         {
-            return await _context.News.Where(n => n.Title == title).FirstOrDefaultAsync();
+            return await _context.News
+                .Where(n => EF.Functions.Like(n.Title, $"%{title}%"))
+                .FirstOrDefaultAsync();
         }
 
         public async Task<bool> NewsExistsAsync(int newsId)
@@ -35,7 +37,8 @@ namespace LandingAPI.Repository
 
         public async Task<bool> NewsExistsByTitleAsync(string title)
         {
-            return await _context.News.AnyAsync(n => n.Title == title);
+            return await _context.News
+                .AnyAsync(n => EF.Functions.Like(n.Title, $"%{title}%"));
         }
     }
 }
