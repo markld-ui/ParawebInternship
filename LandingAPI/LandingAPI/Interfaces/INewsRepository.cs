@@ -1,13 +1,14 @@
 ﻿using LandingAPI.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace LandingAPI.Interfaces
 {
     public interface INewsRepository
     {
-        ICollection<News> GetNews();
-        News GetNews(int newsId);
-        News GetNewsByTitle(string title);
-        bool NewsExists(int newsId);
-        bool NewsExistsByTitle(string title);
+        Task<ICollection<News>> GetNewsAsync();
+        Task<News> GetNewsAsync(int newsId);
+        Task<News> GetNewsByTitleAsync(string title);
+        Task<bool> NewsExistsAsync(int newsId);
+        Task<bool> NewsExistsByTitleAsync(string title);
     }
 }

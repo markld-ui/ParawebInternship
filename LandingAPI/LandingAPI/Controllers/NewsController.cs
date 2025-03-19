@@ -3,6 +3,7 @@ using LandingAPI.DTO;
 using LandingAPI.Interfaces;
 using LandingAPI.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace LandingAPI.Controllers
 {
@@ -20,43 +21,46 @@ namespace LandingAPI.Controllers
 
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<NewsDTO>), 200)]
-        public IActionResult GetNews()
+        public async Task<IActionResult> GetNewsAsync()
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var news = _mapper.Map<List<NewsDTO>>(_newsRepository.GetNews());
-            return Ok(news);
+            var news = await _newsRepository.GetNewsAsync();
+            var newsDtos = _mapper.Map<List<NewsDTO>>(news);
+            return Ok(newsDtos);
         }
 
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(IEnumerable<NewsDTO>), 200)]
         [ProducesResponseType(400)]
-        public IActionResult GetNew(int id)
+        public async Task<IActionResult> GetNewAsync(int id)
         {
-            if (!_newsRepository.NewsExists(id))
+            if (!await _newsRepository.NewsExistsAsync(id))
                 return NotFound();
 
-            var news = _mapper.Map<NewsDTO>(_newsRepository.GetNews(id));
+            var news = await _newsRepository.GetNewsAsync(id);
+            var newsDtos = _mapper.Map<NewsDTO>(news);
 
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            return Ok(news);
+            return Ok(newsDtos);
         }
 
         [HttpGet("search/{title}")]
         [ProducesResponseType(typeof(IEnumerable<NewsDTO>), 200)]
         [ProducesResponseType(400)]
-        public IActionResult GetNewByTitle(string title)
+        public async Task<IActionResult> GetNewByTitleAsync(string title)
         {
-            if (!_newsRepository.NewsExistsByTitle(title))
+            if (!await _newsRepository.NewsExistsByTitleAsync(title))
                 return NotFound();
 
-            var news = _mapper.Map<NewsDTO>(_newsRepository.GetNewsByTitle(title));
+            var news = await _newsRepository.GetNewsByTitleAsync(title);
+            var newsDtos = _mapper.Map<NewsDTO>(news);
             if (!ModelState.IsValid)
                 return BadRequest();
-            return Ok(news);
+            return Ok(newsDtos);
         }
     }
 }
