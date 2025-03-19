@@ -8,7 +8,6 @@
         public int NewsId { get; set; }
         public string Title { get; set; }
         public string Content { get; set; }
-        public string? ImageUrl { get; set; }
 
         public int CreatedById { get; set; }
         public User CreatedBy { get; set; }

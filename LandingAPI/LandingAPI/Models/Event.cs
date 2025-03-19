@@ -11,7 +11,6 @@
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public string? Location { get; set; }
-        public string? ImageUrl { get; set; }
 
         public int CreatedById { get; set; }
         public User CreatedBy { get; set; }
