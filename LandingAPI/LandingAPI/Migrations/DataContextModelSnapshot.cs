@@ -210,7 +210,7 @@ namespace LandingAPI.Migrations
                     b.HasOne("LandingAPI.Models.User", "CreatedBy")
                         .WithMany("News")
                         .HasForeignKey("CreatedById")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.SetNull)
                         .IsRequired();
 
                     b.HasOne("LandingAPI.Models.Files", "File")
