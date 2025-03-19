@@ -21,58 +21,62 @@ namespace LandingAPI.Controllers
 
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<UserDTO>), 200)]
-        public IActionResult GetUsers()
+        public async Task<IActionResult> GetUsersAsync()
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var users = _mapper.Map<List<UserDTO>>(_userRepository.GetUsers());
-            return Ok(users);
+            var users = await _userRepository.GetUsersAsync();
+            var usersDtos = _mapper.Map<List<UserDTO>>(users);
+            return Ok(usersDtos);
         }
 
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(IEnumerable<UserDTO>), 200)]
         [ProducesResponseType(400)]
-        public IActionResult GetUser(int id)
+        public async Task<IActionResult> GetUserAsync(int id)
         {
-            if (!_userRepository.UserExistsById(id))
+            if (!await _userRepository.UserExistsByIdAsync(id))
                 return NotFound();
 
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            var user = _mapper.Map<UserDTO>(_userRepository.GetUserById(id));
-            return Ok(user);
+            var users = await _userRepository.GetUserByIdAsync(id);
+            var usersDtos = _mapper.Map<UserDTO>(users);
+            return Ok(usersDtos);
         }
 
         [HttpGet("search")]
         [ProducesResponseType(typeof(IEnumerable<UserDTO>), 200)]
         [ProducesResponseType(400)]
-        public IActionResult GetUser(string username)
+        public async Task<IActionResult> GetUserAsync(string username)
         {
-            if (!_userRepository.UserExistsByName(username))
+            if (!await _userRepository.UserExistsByNameAsync(username))
                 return NotFound();
 
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            var user = _mapper.Map<UserDTO>(_userRepository.GetUserByName(username));
-            return Ok(user);
+            var users = await _userRepository.GetUserByNameAsync(username);
+            var usersDtos = _mapper.Map<UserDTO>(users);
+            return Ok(usersDtos);
         }
 
         [HttpGet("{id}/News")]
-        [ProducesResponseType(typeof(IEnumerable<UserDTO>), 200)]
+        [ProducesResponseType(typeof(IEnumerable<NewsDTO>), 200)]
         [ProducesResponseType(400)]
-        public IActionResult GetNewsByUser(int id)
+        public async Task<IActionResult> GetNewsByUserAsync(int id)
         {
-            if (!_userRepository.UserExistsById(id))
+            if (!await _userRepository.UserExistsByIdAsync(id))
                 return NotFound();
 
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            var news = _mapper.Map<List<NewsDTO>>(_userRepository.GetNewsByUserId(id));
-            return Ok(news);
+            var users = await _userRepository.GetNewsByUserIdAsync(id);
+            var newsDtos = _mapper.Map<List<NewsDTO>>(users);
+            return Ok(newsDtos);
         }
     }
 }
