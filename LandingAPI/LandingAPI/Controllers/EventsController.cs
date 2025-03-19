@@ -18,7 +18,7 @@ namespace LandingAPI.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(200, Type = typeof(IEnumerable<EventDTO>))]
+        [ProducesResponseType(typeof(IEnumerable<EventDTO>), 200)]
         public IActionResult GetEvents()
         {
             if (!ModelState.IsValid)
@@ -29,7 +29,7 @@ namespace LandingAPI.Controllers
         }
 
         [HttpGet("{id}")]
-        [ProducesResponseType(200, Type = typeof(IEnumerable<EventDTO>))]
+        [ProducesResponseType(typeof(IEnumerable<EventDTO>), 200)]
         [ProducesResponseType(400)]
         public IActionResult GetEvent(int id)
         {
@@ -43,7 +43,7 @@ namespace LandingAPI.Controllers
         }
 
         [HttpGet("search")]
-        [ProducesResponseType(200, Type = typeof(IEnumerable<EventDTO>))]
+        [ProducesResponseType(typeof(IEnumerable<EventDTO>), 200)]
         [ProducesResponseType(400)]
         public IActionResult GetEventsByUserId(int userId)
         {

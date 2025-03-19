@@ -19,7 +19,7 @@ namespace LandingAPI.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(200, Type = typeof(IEnumerable<UserDTO>))]
+        [ProducesResponseType(typeof(IEnumerable<UserDTO>), 200)]
         public IActionResult GetUsers()
         {
             if (!ModelState.IsValid)
@@ -30,7 +30,7 @@ namespace LandingAPI.Controllers
         }
 
         [HttpGet("{id}")]
-        [ProducesResponseType(200, Type = typeof(IEnumerable<UserDTO>))]
+        [ProducesResponseType(typeof(IEnumerable<UserDTO>), 200)]
         [ProducesResponseType(400)]
         public IActionResult GetUser(int id)
         {
@@ -45,7 +45,7 @@ namespace LandingAPI.Controllers
         }
 
         [HttpGet("search")]
-        [ProducesResponseType(200, Type = typeof(IEnumerable<UserDTO>))]
+        [ProducesResponseType(typeof(IEnumerable<UserDTO>), 200)]
         [ProducesResponseType(400)]
         public IActionResult GetUser(string username)
         {
@@ -60,7 +60,7 @@ namespace LandingAPI.Controllers
         }
 
         [HttpGet("{id}/News")]
-        [ProducesResponseType(200, Type = typeof(IEnumerable<NewsDTO>))]
+        [ProducesResponseType(typeof(IEnumerable<UserDTO>), 200)]
         [ProducesResponseType(400)]
         public IActionResult GetNewsByUser(int id)
         {

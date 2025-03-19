@@ -19,7 +19,7 @@ namespace LandingAPI.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(200, Type = typeof(IEnumerable<NewsDTO>))]
+        [ProducesResponseType(typeof(IEnumerable<NewsDTO>), 200)]
         public IActionResult GetNews()
         {
             if (!ModelState.IsValid)
@@ -30,7 +30,7 @@ namespace LandingAPI.Controllers
         }
 
         [HttpGet("{id}")]
-        [ProducesResponseType(200, Type = typeof(NewsDTO))]
+        [ProducesResponseType(typeof(IEnumerable<NewsDTO>), 200)]
         [ProducesResponseType(400)]
         public IActionResult GetNew(int id)
         {
@@ -46,7 +46,7 @@ namespace LandingAPI.Controllers
         }
 
         [HttpGet("search/{title}")]
-        [ProducesResponseType(200, Type = typeof(NewsDTO))]
+        [ProducesResponseType(typeof(IEnumerable<NewsDTO>), 200)]
         [ProducesResponseType(400)]
         public IActionResult GetNewByTitle(string title)
         {

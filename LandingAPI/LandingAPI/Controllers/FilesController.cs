@@ -19,7 +19,7 @@ namespace LandingAPI.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(200, Type = typeof(IEnumerable<FilesDTO>))]
+        [ProducesResponseType(typeof(IEnumerable<FilesDTO>), 200)]
         public IActionResult GetFiles()
         {
             if (!ModelState.IsValid)
@@ -30,7 +30,7 @@ namespace LandingAPI.Controllers
         }
 
         [HttpGet("{id}")]
-        [ProducesResponseType(200, Type = typeof(FilesDTO))]
+        [ProducesResponseType(typeof(IEnumerable<FilesDTO>), 200)]
         [ProducesResponseType(400)]
         public IActionResult GetFile(int id)
         {
@@ -44,9 +44,8 @@ namespace LandingAPI.Controllers
             return Ok(file);
         }
 
-        // Новый метод для получения файла, связанного с новостью
         [HttpGet("news/{newsId}")]
-        [ProducesResponseType(200, Type = typeof(FilesDTO))]
+        [ProducesResponseType(typeof(IEnumerable<FilesDTO>), 200)]
         [ProducesResponseType(400)]
         public IActionResult GetFileByNewsId(int newsId)
         {
@@ -60,9 +59,8 @@ namespace LandingAPI.Controllers
             return Ok(file);
         }
 
-        // Новый метод для получения файла, связанного с событием
         [HttpGet("events/{eventId}")]
-        [ProducesResponseType(200, Type = typeof(FilesDTO))]
+        [ProducesResponseType(typeof(IEnumerable<FilesDTO>), 200)]
         [ProducesResponseType(400)]
         public IActionResult GetFileByEventId(int eventId)
         {
