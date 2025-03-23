@@ -1,39 +1,105 @@
-﻿using LandingAPI.Models;
+﻿#region Заголовок файла
+
+/// <summary>
+/// Файл: FilesRepository.cs
+/// Реализация репозитория для работы с сущностью <see cref="Files"/>.
+/// Предоставляет методы для доступа к данным о файлах в базе данных, включая файлы, связанные с новостями и событиями.
+/// </summary>
+
+#endregion
+
+#region Пространства имен
+
+using LandingAPI.Models;
 using LandingAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using LandingAPI.Interfaces.Repositories;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+#endregion
 
 namespace LandingAPI.Repository
 {
+    #region Класс FilesRepository
+
+    /// <summary>
+    /// Реализация репозитория для работы с сущностью <see cref="Files"/>.
+    /// </summary>
     public class FilesRepository : IFilesRepository
     {
-        private DataContext _context;
+        #region Поля
+
+        private readonly DataContext _context;
+
+        #endregion
+
+        #region Конструктор
+
+        /// <summary>
+        /// Инициализирует новый экземпляр класса <see cref="FilesRepository"/>.
+        /// </summary>
+        /// <param name="context">Контекст базы данных.</param>
         public FilesRepository(DataContext context)
         {
             _context = context;
         }
 
+        #endregion
+
+        #region Методы
+
+        /// <summary>
+        /// Проверяет существование файла по его идентификатору.
+        /// </summary>
+        /// <param name="id">Идентификатор файла.</param>
+        /// <returns>
+        /// <c>true</c>, если файл с указанным идентификатором существует, иначе <c>false</c>.
+        /// </returns>
         public async Task<bool> FileExistsByIdAsync(int id)
         {
             return await _context.Files.AnyAsync(f => f.FileId == id);
         }
 
+        /// <summary>
+        /// Проверяет существование файла по его имени.
+        /// </summary>
+        /// <param name="name">Имя файла.</param>
+        /// <returns>
+        /// <c>true</c>, если файл с указанным именем существует, иначе <c>false</c>.
+        /// </returns>
         public async Task<bool> FileExistsByNameAsync(string name)
         {
             return await _context.Files.AnyAsync(f => f.FileName == name);
         }
 
+        /// <summary>
+        /// Получает файл по его идентификатору.
+        /// </summary>
+        /// <param name="id">Идентификатор файла.</param>
+        /// <returns>Файл, если найден, иначе <c>null</c>.</returns>
         public async Task<Files> GetFileByIdAsync(int id)
         {
             return await _context.Files.Where(f => f.FileId == id).FirstOrDefaultAsync();
         }
 
+        /// <summary>
+        /// Получает список всех файлов, отсортированных по идентификатору.
+        /// </summary>
+        /// <returns>Коллекция файлов.</returns>
         public async Task<ICollection<Files>> GetFilesAsync()
         {
             return await _context.Files.OrderBy(f => f.FileId).ToListAsync();
         }
 
-        // Новый метод для получения файла, связанного с новостью
+        #region Методы для получения файлов, связанных с новостями и событиями
+
+        /// <summary>
+        /// Получает файл, связанный с определенной новостью.
+        /// </summary>
+        /// <param name="newsId">Идентификатор новости.</param>
+        /// <returns>Файл, если найден, иначе <c>null</c>.</returns>
         public async Task<Files> GetFileByNewsIdAsync(int newsId)
         {
             return await _context.News
@@ -42,7 +108,11 @@ namespace LandingAPI.Repository
                 .FirstOrDefaultAsync();
         }
 
-        // Новый метод для получения файла, связанного с событием
+        /// <summary>
+        /// Получает файл, связанный с определенным событием.
+        /// </summary>
+        /// <param name="eventId">Идентификатор события.</param>
+        /// <returns>Файл, если найден, иначе <c>null</c>.</returns>
         public async Task<Files> GetFileByEventIdAsync(int eventId)
         {
             return await _context.Events
@@ -50,5 +120,11 @@ namespace LandingAPI.Repository
                 .Select(e => e.File)
                 .FirstOrDefaultAsync();
         }
+
+        #endregion
+
+        #endregion
     }
+
+    #endregion
 }
