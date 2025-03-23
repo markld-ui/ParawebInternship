@@ -1,23 +1,66 @@
-﻿namespace LandingAPI.Models
+﻿#region Заголовок файла
+
+/// <summary>
+/// Файл: User.cs
+/// Класс, представляющий сущность "Пользователь" (User).
+/// Используется для хранения данных о пользователях, их ролях, созданных новостях и мероприятиях.
+/// </summary>
+
+#endregion
+
+namespace LandingAPI.Models
 {
+    #region Класс User
+
     /// <summary>
-    /// General user data-class
+    /// Класс, представляющий сущность "Пользователь".
     /// </summary>
     public class User
     {
+        #region Свойства
+
+        /// <summary>
+        /// Идентификатор пользователя.
+        /// </summary>
         public int UserId { get; set; }
+
+        /// <summary>
+        /// Имя пользователя.
+        /// </summary>
         public string Username { get; set; }
+
+        /// <summary>
+        /// Электронная почта пользователя.
+        /// </summary>
         public string Email { get; set; }
+
+        /// <summary>
+        /// Хэш пароля пользователя.
+        /// </summary>
         public string PasswordHash { get; set; }
 
-        // Связь с ролью (Many-to-Many: Role <-> Users) -> (One-to-Many; Many-to-One)
+        /// <summary>
+        /// Коллекция связей между пользователями и ролями (Many-to-Many: User <-> Roles).
+        /// </summary>
         public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
 
-        // Связь с новостями (One-to-Many: User -> News)
+        /// <summary>
+        /// Коллекция новостей, созданных пользователем (One-to-Many: User -> News).
+        /// </summary>
         public ICollection<News> News { get; set; } = new List<News>();
 
-        // Связь с мероприятиями (One-to-Many: User -> Events)
+        /// <summary>
+        /// Коллекция мероприятий, созданных пользователем (One-to-Many: User -> Events).
+        /// </summary>
         public ICollection<Event> CreatedEvents { get; set; } = new List<Event>();
+
+        /// <summary>
+        /// Дата и время создания пользователя. По умолчанию устанавливается текущее время в UTC.
+        /// </summary>
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        #endregion
     }
+
+    #endregion
 }

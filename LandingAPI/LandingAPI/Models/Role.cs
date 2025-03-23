@@ -1,14 +1,41 @@
-﻿namespace LandingAPI.Models
+﻿#region Заголовок файла
+
+/// <summary>
+/// Файл: Role.cs
+/// Класс, представляющий сущность "Роль" (Role).
+/// Используется для хранения данных о ролях пользователей и их связях с пользователями.
+/// </summary>
+
+#endregion
+
+namespace LandingAPI.Models
 {
+    #region Класс Role
+
     /// <summary>
-    /// Data-class for user roles
+    /// Класс, представляющий сущность "Роль".
     /// </summary>
     public class Role
     {
+        #region Свойства
+
+        /// <summary>
+        /// Идентификатор роли.
+        /// </summary>
         public int RoleId { get; set; }
+
+        /// <summary>
+        /// Название роли.
+        /// </summary>
         public string Name { get; set; }
 
-        // Связь с ролью (Many-to-Many: Role <-> Users) -> (One-to-Many; Many-to-One)
+        /// <summary>
+        /// Коллекция связей между ролями и пользователями (Many-to-Many: Role <-> Users).
+        /// </summary>
         public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
+
+        #endregion
     }
+
+    #endregion
 }
