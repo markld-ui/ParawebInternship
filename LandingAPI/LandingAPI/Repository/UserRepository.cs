@@ -42,5 +42,21 @@ namespace LandingAPI.Repository
         {
             return await _context.Users.AnyAsync(n => n.Username == username);
         }
+
+        public async Task<User> GetUserByEmailAsync(string email)
+        {
+            return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+        }
+
+        public async Task<bool> UserExistsByEmailAsync(string email)
+        {
+            return await _context.Users.AnyAsync(u => u.Email == email);
+        }
+
+        public async Task AddUserAsync(User user)
+        {
+            await _context.Users.AddAsync(user);
+            await _context.SaveChangesAsync();
+        }
     }
 }

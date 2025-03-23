@@ -4,6 +4,7 @@ using LandingAPI.DTO;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using LandingAPI.Interfaces.Repositories;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LandingAPI.Controllers
 {

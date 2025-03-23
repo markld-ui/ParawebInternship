@@ -2,11 +2,13 @@
 using LandingAPI.DTO;
 using LandingAPI.Interfaces.Repositories;
 using LandingAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace LandingAPI.Controllers
 {
+    [Authorize(Roles = "Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class NewsController : Controller
