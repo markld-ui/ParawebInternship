@@ -1,27 +1,64 @@
-﻿using LandingAPI.Data;
+﻿#region Заголовок файла
+
+/// <summary>
+/// Файл: Seed.cs
+/// Класс для заполнения базы данных начальными данными (сидирование).
+/// Используется для добавления тестовых данных в таблицы, если они пусты.
+/// </summary>
+
+#endregion
+
+#region Пространства имен
+
+using LandingAPI.Data;
 using LandingAPI.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
+#endregion
+
 namespace LandingAPI.Services.Seeding
 {
+    #region Класс Seed
+
+    /// <summary>
+    /// Класс для заполнения базы данных начальными данными.
+    /// </summary>
     public class Seed
     {
+        #region Поля
+
         private readonly DataContext _dataContext;
 
+        #endregion
+
+        #region Конструктор
+
+        /// <summary>
+        /// Инициализирует новый экземпляр класса <see cref="Seed"/>.
+        /// </summary>
+        /// <param name="dataContext">Контекст базы данных.</param>
         public Seed(DataContext dataContext)
         {
             _dataContext = dataContext;
         }
 
+        #endregion
+
+        #region Методы
+
+        /// <summary>
+        /// Заполняет базу данных начальными данными, если таблицы пусты.
+        /// </summary>
         public void SeedDataContext()
         {
-            // Ensure the database is created
+            // Убедиться, что база данных создана
             _dataContext.Database.EnsureCreated();
 
-            // Seed Roles if they don't exist
+            #region Заполнение таблицы Roles
+
             if (!_dataContext.Roles.Any())
             {
                 var roles = new List<Role>
@@ -34,7 +71,10 @@ namespace LandingAPI.Services.Seeding
                 _dataContext.SaveChanges();
             }
 
-            // Seed Users if they don't exist
+            #endregion
+
+            #region Заполнение таблицы Users
+
             if (!_dataContext.Users.Any())
             {
                 var adminRole = _dataContext.Roles.FirstOrDefault(r => r.Name == "Admin");
@@ -93,7 +133,10 @@ namespace LandingAPI.Services.Seeding
                 _dataContext.SaveChanges();
             }
 
-            // Seed Files if they don't exist
+            #endregion
+
+            #region Заполнение таблицы Files
+
             if (!_dataContext.Files.Any())
             {
                 var files = new List<Files>
@@ -116,7 +159,10 @@ namespace LandingAPI.Services.Seeding
                 _dataContext.SaveChanges();
             }
 
-            // Seed News if they don't exist
+            #endregion
+
+            #region Заполнение таблицы News
+
             if (!_dataContext.News.Any())
             {
                 var adminUser = _dataContext.Users.FirstOrDefault(u => u.Username == "admin");
@@ -153,7 +199,10 @@ namespace LandingAPI.Services.Seeding
                 _dataContext.SaveChanges();
             }
 
-            // Seed Events if they don't exist
+            #endregion
+
+            #region Заполнение таблицы Events
+
             if (!_dataContext.Events.Any())
             {
                 var adminUser = _dataContext.Users.FirstOrDefault(u => u.Username == "admin");
@@ -195,6 +244,12 @@ namespace LandingAPI.Services.Seeding
                 _dataContext.Events.AddRange(events);
                 _dataContext.SaveChanges();
             }
+
+            #endregion
         }
+
+        #endregion
     }
+
+    #endregion
 }
