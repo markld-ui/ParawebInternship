@@ -91,6 +91,23 @@ namespace LandingAPI.Repository
             return await _context.Events.Where(e => e.CreatedById == userId).ToListAsync();
         }
 
+        public async Task AddEventAsync(Event event_)
+{
+            await _context.Events.AddAsync(event_);
+        await _context.SaveChangesAsync();
+}
+
+public async Task UpdateEventAsync(Event event_)
+        {
+            _context.Events.Update(event_);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteEventAsync(Event event_)
+        {
+            _context.Events.Remove(event_);
+            await _context.SaveChangesAsync();
+        }
         #endregion
     }
 

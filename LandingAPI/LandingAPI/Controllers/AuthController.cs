@@ -87,7 +87,8 @@ namespace LandingAPI.Controllers
             };
 
             await _userRepository.AddUserAsync(user);
-            return Ok(new { Message = "User registered successfully" });
+            var token = _jwtService.GenerateToken(user);
+            return Ok(new { Token = token });
         }
 
         #endregion

@@ -66,6 +66,10 @@ namespace LandingAPI.Interfaces.Repositories
         /// </returns>
         Task<bool> NewsExistsByTitleAsync(string title);
 
+        Task AddNewsAsync(News news);
+        Task UpdateNewsAsync(News news);
+        Task DeleteNewsAsync(News news);
+
         #endregion
     }
 

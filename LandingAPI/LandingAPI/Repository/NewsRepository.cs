@@ -106,6 +106,23 @@ namespace LandingAPI.Repository
                 .AnyAsync(n => EF.Functions.Like(n.Title, $"%{title}%"));
         }
 
+        public async Task AddNewsAsync(News news)
+        {
+            await _context.News.AddAsync(news);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateNewsAsync(News news)
+        {
+            _context.News.Update(news);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteNewsAsync(News news)
+        {
+            _context.News.Remove(news);
+            await _context.SaveChangesAsync();
+        }
         #endregion
     }
 

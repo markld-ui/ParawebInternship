@@ -94,6 +94,9 @@ namespace LandingAPI.Interfaces.Repositories
         /// <param name="user">Пользователь для добавления.</param>
         Task AddUserAsync(User user);
 
+        Task UpdateUserAsync(User user);
+
+        Task DeleteUserAsync(User user);
         #endregion
     }
 

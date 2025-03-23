@@ -41,6 +41,11 @@ namespace LandingAPI.DTO
         public required string Content { get; set; }
 
         /// <summary>
+        /// Идентификатор файла, связанного с новостью. Может быть null.
+        /// </summary>
+        public int? FileId { get; set; }
+
+        /// <summary>
         /// Дата и время создания новости. По умолчанию устанавливается текущее время в UTC.
         /// </summary>
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

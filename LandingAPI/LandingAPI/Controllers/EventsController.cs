@@ -11,11 +11,13 @@
 #region Пространства имен
 
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
 using LandingAPI.DTO;
 using LandingAPI.Interfaces.Repositories;
 using LandingAPI.Models;
+using LandingAPI.Repository;
 using Microsoft.AspNetCore.Mvc;
 
 #endregion
@@ -142,6 +144,60 @@ namespace LandingAPI.Controllers
         }
 
         #endregion
+
+        [HttpPost]
+        public async Task<IActionResult> CreateEvent([FromBody] EventDTO model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var event_ = new Event
+            {
+                Title = model.Title,
+                Description = model.Description,
+                StartDate = model.StartDate,
+                EndDate = model.EndDate,
+                Location = model.Location,
+                CreatedById = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value),
+                CreatedAt = DateTime.UtcNow,
+                FileId = model.FileId
+            };
+
+            await _eventRepository.AddEventAsync(event_);
+            return Ok(event_);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateEvent(int id, [FromBody] EventDTO model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var event_ = await _eventRepository.GetEventByIdAsync(id);
+            if (event_ == null)
+                return NotFound();
+
+            event_.Title = model.Title;
+            event_.Description = model.Description;
+            event_.StartDate = model.StartDate;
+            event_.EndDate = model.EndDate;
+            event_.Location = model.Location;
+            event_.FileId = model.FileId;
+
+            await _eventRepository.UpdateEventAsync(event_);
+            return Ok(event_);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteEvent(int id)
+        {
+            var event_ = await _eventRepository.GetEventByIdAsync(id);
+            if (event_ == null)
+                return NotFound();
+
+            await _eventRepository.DeleteEventAsync(event_);
+            return NoContent();
+        }
 
         #endregion
     }

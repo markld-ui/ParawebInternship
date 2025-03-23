@@ -41,9 +41,9 @@ namespace LandingAPI.DTO
         public required string Email { get; set; }
 
         /// <summary>
-        /// Хэш пароля пользователя. Обязательное поле.
+        /// Пароль пользователя. Обязательное поле.
         /// </summary>
-        public required string PasswordHash { get; set; }
+        public required string Password { get; set; }
 
         /// <summary>
         /// Идентификатор роли пользователя.

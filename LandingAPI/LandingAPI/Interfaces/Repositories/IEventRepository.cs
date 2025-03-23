@@ -56,6 +56,10 @@ namespace LandingAPI.Interfaces.Repositories
         /// </returns>
         Task<bool> EventExistsByIdAsync(int id);
 
+        Task AddEventAsync(Event event_);
+        Task UpdateEventAsync(Event event_);
+        Task DeleteEventAsync(Event event_);
+
         #endregion
     }
 

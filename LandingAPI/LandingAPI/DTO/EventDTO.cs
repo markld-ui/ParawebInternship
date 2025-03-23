@@ -56,6 +56,11 @@ namespace LandingAPI.DTO
         public required string? Location { get; set; }
 
         /// <summary>
+        /// Идентификатор файла, связанного с событием. Может быть null.
+        /// </summary>
+        public int? FileId { get; set; }
+
+        /// <summary>
         /// Пользователь, создавший событие.
         /// </summary>
         public User CreatedBy { get; set; }

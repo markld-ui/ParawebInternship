@@ -18,6 +18,7 @@ using LandingAPI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 #endregion
 
@@ -144,6 +145,54 @@ namespace LandingAPI.Controllers
         }
 
         #endregion
+
+        [HttpPost]
+        public async Task<IActionResult> CreateNews([FromBody] NewsDTO model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var news = new News
+            {
+                Title = model.Title,
+                Content = model.Content,
+                CreatedById = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value),
+                CreatedAt = DateTime.UtcNow,
+                FileId = model.FileId
+            };
+
+            await _newsRepository.AddNewsAsync(news);
+            return Ok(news);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateNews(int id, [FromBody] NewsDTO model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var news = await _newsRepository.GetNewsAsync(id);
+            if (news == null)
+                return NotFound();
+
+            news.Title = model.Title;
+            news.Content = model.Content;
+            news.FileId = model.FileId;
+
+            await _newsRepository.UpdateNewsAsync(news);
+            return Ok(news);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteNews(int id)
+        {
+            var news = await _newsRepository.GetNewsAsync(id);
+            if (news == null)
+                return NotFound();
+
+            await _newsRepository.DeleteNewsAsync(news);
+            return NoContent();
+        }
 
         #endregion
     }

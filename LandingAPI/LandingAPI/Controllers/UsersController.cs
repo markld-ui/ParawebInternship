@@ -17,6 +17,7 @@ using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using LandingAPI.Interfaces.Repositories;
 using Microsoft.AspNetCore.Authorization;
+using LandingAPI.Interfaces.Auth;
 
 #endregion
 
@@ -35,6 +36,7 @@ namespace LandingAPI.Controllers
 
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
+        private readonly IPasswordHasher _passwordHasher;
 
         #endregion
 
@@ -45,10 +47,11 @@ namespace LandingAPI.Controllers
         /// </summary>
         /// <param name="userRepository">Репозиторий для работы с пользователями.</param>
         /// <param name="mapper">Объект для маппинга данных между моделями и DTO.</param>
-        public UsersController(IUserRepository userRepository, IMapper mapper)
+        public UsersController(IUserRepository userRepository, IMapper mapper, IPasswordHasher passwordHasher)
         {
             _userRepository = userRepository;
             _mapper = mapper;
+            _passwordHasher = passwordHasher;
         }
 
         #endregion
@@ -172,6 +175,35 @@ namespace LandingAPI.Controllers
         }
 
         #endregion
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateUser(int id, [FromBody] UserDTO model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var user = await _userRepository.GetUserByIdAsync(id);
+            if (user == null)
+                return NotFound();
+
+            user.Username = model.Username;
+            user.Email = model.Email;
+            user.PasswordHash = _passwordHasher.Generate(model.Password);
+
+            await _userRepository.UpdateUserAsync(user);
+            return Ok(user);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteUser(int id)
+        {
+            var user = await _userRepository.GetUserByIdAsync(id);
+            if (user == null)
+                return NotFound();
+
+            await _userRepository.DeleteUserAsync(user);
+            return NoContent();
+        }
 
         #endregion
     }
