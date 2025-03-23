@@ -56,8 +56,25 @@ namespace LandingAPI.Interfaces.Repositories
         /// </returns>
         Task<bool> EventExistsByIdAsync(int id);
 
+        /// <summary>
+        /// Добавляет новое событие в базу данных.
+        /// </summary>
+        /// <param name="event_">Событие для добавления.</param>
+        /// <returns>Задача, представляющая асинхронную операцию.</returns>
         Task AddEventAsync(Event event_);
+
+        /// <summary>
+        /// Обновляет существующее событие в базе данных.
+        /// </summary>
+        /// <param name="event_">Событие для обновления.</param>
+        /// <returns>Задача, представляющая асинхронную операцию.</returns>
         Task UpdateEventAsync(Event event_);
+
+        /// <summary>
+        /// Удаляет событие из базы данных.
+        /// </summary>
+        /// <param name="event_">Событие для удаления.</param>
+        /// <returns>Задача, представляющая асинхронную операцию.</returns>
         Task DeleteEventAsync(Event event_);
 
         #endregion

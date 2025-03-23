@@ -59,6 +59,16 @@ namespace LandingAPI.Models
         /// </summary>
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+        /// <summary>
+        /// Refresh-токен пользователя, используемый для обновления JWT-токена.
+        /// </summary>
+        public string RefreshToken { get; set; }
+
+        /// <summary>
+        /// Дата и время истечения срока действия refresh-токена.
+        /// </summary>
+        public DateTime RefreshTokenExpiryTime { get; set; }
+
         #endregion
     }
 

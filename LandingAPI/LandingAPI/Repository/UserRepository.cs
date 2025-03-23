@@ -145,15 +145,76 @@ namespace LandingAPI.Repository
             await _context.SaveChangesAsync();
         }
 
+        /// <summary>
+        /// Обновляет данные пользователя в базе данных.
+        /// </summary>
+        /// <param name="user">Пользователь для обновления.</param>
         public async Task UpdateUserAsync(User user)
         {
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
         }
 
+        /// <summary>
+        /// Удаляет пользователя из базы данных.
+        /// </summary>
+        /// <param name="user">Пользователь для удаления.</param>
         public async Task DeleteUserAsync(User user)
         {
             _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Назначает роль пользователю.
+        /// </summary>
+        /// <param name="userId">Идентификатор пользователя.</param>
+        /// <param name="roleId">Идентификатор роли.</param>
+        /// <exception cref="Exception">
+        /// Возникает, если пользователь или роль не найдены, либо если роль уже назначена пользователю.
+        /// </exception>
+        public async Task AssignRoleAsync(int userId, int roleId)
+        {
+            var user = await _context.Users
+                .Include(u => u.UserRoles)
+                .FirstOrDefaultAsync(u => u.UserId == userId);
+
+            if (user == null)
+                throw new Exception("Пользователь не найден.");
+
+            var role = await _context.Roles.FindAsync(roleId);
+            if (role == null)
+                throw new Exception("Роль не найдена.");
+
+            if (user.UserRoles.Any(ur => ur.RoleId == roleId))
+                throw new Exception("Роль уже назначена пользователю.");
+
+            user.UserRoles.Add(new UserRole { RoleId = roleId });
+            await _context.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Удаляет роль у пользователя.
+        /// </summary>
+        /// <param name="userId">Идентификатор пользователя.</param>
+        /// <param name="roleId">Идентификатор роли.</param>
+        /// <exception cref="Exception">
+        /// Возникает, если пользователь не найден или роль не назначена пользователю.
+        /// </exception>
+        public async Task RemoveRoleAsync(int userId, int roleId)
+        {
+            var user = await _context.Users
+                .Include(u => u.UserRoles)
+                .FirstOrDefaultAsync(u => u.UserId == userId);
+
+            if (user == null)
+                throw new Exception("Пользователь не найден.");
+
+            var userRole = user.UserRoles.FirstOrDefault(ur => ur.RoleId == roleId);
+            if (userRole == null)
+                throw new Exception("Роль не назначена пользователю.");
+
+            user.UserRoles.Remove(userRole);
             await _context.SaveChangesAsync();
         }
 

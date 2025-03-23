@@ -176,6 +176,19 @@ namespace LandingAPI.Controllers
 
         #endregion
 
+        #region UpdateUser
+
+        /// <summary>
+        /// Обновляет данные пользователя.
+        /// </summary>
+        /// <param name="id">Идентификатор пользователя, данные которого нужно обновить.</param>
+        /// <param name="model">Модель данных для обновления пользователя, содержащая новое имя пользователя, email и пароль.</param>
+        /// <returns>
+        /// Возвращает <see cref="IActionResult"/>:
+        /// - 400 BadRequest, если модель данных невалидна.
+        /// - 404 NotFound, если пользователь с указанным идентификатором не найден.
+        /// - 200 OK с обновленными данными пользователя.
+        /// </returns>
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateUser(int id, [FromBody] UserDTO model)
         {
@@ -194,6 +207,19 @@ namespace LandingAPI.Controllers
             return Ok(user);
         }
 
+        #endregion
+
+        #region DeleteUser
+
+        /// <summary>
+        /// Удаляет пользователя по его идентификатору.
+        /// </summary>
+        /// <param name="id">Идентификатор пользователя, которого нужно удалить.</param>
+        /// <returns>
+        /// Возвращает <see cref="IActionResult"/>:
+        /// - 404 NotFound, если пользователь с указанным идентификатором не найден.
+        /// - 204 NoContent, если пользователь успешно удален.
+        /// </returns>
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
@@ -204,6 +230,8 @@ namespace LandingAPI.Controllers
             await _userRepository.DeleteUserAsync(user);
             return NoContent();
         }
+
+        #endregion
 
         #endregion
     }

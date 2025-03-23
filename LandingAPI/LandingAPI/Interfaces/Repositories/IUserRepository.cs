@@ -94,9 +94,31 @@ namespace LandingAPI.Interfaces.Repositories
         /// <param name="user">Пользователь для добавления.</param>
         Task AddUserAsync(User user);
 
+        /// <summary>
+        /// Обновляет данные пользователя в базе данных.
+        /// </summary>
+        /// <param name="user">Пользователь для обновления.</param>
         Task UpdateUserAsync(User user);
 
+        /// <summary>
+        /// Удаляет пользователя из базы данных.
+        /// </summary>
+        /// <param name="user">Пользователь для удаления.</param>
         Task DeleteUserAsync(User user);
+
+        /// <summary>
+        /// Назначает роль пользователю.
+        /// </summary>
+        /// <param name="userId">Идентификатор пользователя.</param>
+        /// <param name="roleId">Идентификатор роли.</param>
+        Task AssignRoleAsync(int userId, int roleId);
+
+        /// <summary>
+        /// Удаляет роль у пользователя.
+        /// </summary>
+        /// <param name="userId">Идентификатор пользователя.</param>
+        /// <param name="roleId">Идентификатор роли.</param>
+        Task RemoveRoleAsync(int userId, int roleId);
         #endregion
     }
 

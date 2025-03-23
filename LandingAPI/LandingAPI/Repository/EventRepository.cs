@@ -91,18 +91,30 @@ namespace LandingAPI.Repository
             return await _context.Events.Where(e => e.CreatedById == userId).ToListAsync();
         }
 
+        /// <summary>
+        /// Добавляет новое событие в базу данных.
+        /// </summary>
+        /// <param name="event_">Событие для добавления.</param>
         public async Task AddEventAsync(Event event_)
-{
+        {
             await _context.Events.AddAsync(event_);
-        await _context.SaveChangesAsync();
-}
+            await _context.SaveChangesAsync();
+        }
 
-public async Task UpdateEventAsync(Event event_)
+        /// <summary>
+        /// Обновляет существующее событие в базе данных.
+        /// </summary>
+        /// <param name="event_">Событие для обновления.</param>
+        public async Task UpdateEventAsync(Event event_)
         {
             _context.Events.Update(event_);
             await _context.SaveChangesAsync();
         }
 
+        /// <summary>
+        /// Удаляет событие из базы данных.
+        /// </summary>
+        /// <param name="event_">Событие для удаления.</param>
         public async Task DeleteEventAsync(Event event_)
         {
             _context.Events.Remove(event_);

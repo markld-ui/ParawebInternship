@@ -18,6 +18,7 @@ using LandingAPI.DTO;
 using LandingAPI.Interfaces.Repositories;
 using LandingAPI.Models;
 using LandingAPI.Repository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 #endregion
@@ -145,6 +146,21 @@ namespace LandingAPI.Controllers
 
         #endregion
 
+        #region CreateEvent
+
+        /// <summary>
+        /// Создает новое событие.
+        /// </summary>
+        /// <param name="model">Модель данных для создания события, содержащая название, описание, даты начала и окончания, местоположение и идентификатор файла.</param>
+        /// <returns>
+        /// Возвращает <see cref="IActionResult"/>:
+        /// - 400 BadRequest, если модель данных невалидна.
+        /// - 200 OK с данными созданного события.
+        /// </returns>
+        /// <remarks>
+        /// Доступно только для пользователей с ролью "Admin".
+        /// </remarks>
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> CreateEvent([FromBody] EventDTO model)
         {
@@ -167,6 +183,25 @@ namespace LandingAPI.Controllers
             return Ok(event_);
         }
 
+        #endregion
+
+        #region UpdateEvent
+
+        /// <summary>
+        /// Обновляет существующее событие.
+        /// </summary>
+        /// <param name="id">Идентификатор события, которое нужно обновить.</param>
+        /// <param name="model">Модель данных для обновления события, содержащая новое название, описание, даты начала и окончания, местоположение и идентификатор файла.</param>
+        /// <returns>
+        /// Возвращает <see cref="IActionResult"/>:
+        /// - 400 BadRequest, если модель данных невалидна.
+        /// - 404 NotFound, если событие с указанным идентификатором не найдено.
+        /// - 200 OK с данными обновленного события.
+        /// </returns>
+        /// <remarks>
+        /// Доступно только для пользователей с ролью "Admin".
+        /// </remarks>
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateEvent(int id, [FromBody] EventDTO model)
         {
@@ -188,6 +223,23 @@ namespace LandingAPI.Controllers
             return Ok(event_);
         }
 
+        #endregion
+
+        #region DeleteEvent
+
+        /// <summary>
+        /// Удаляет событие по его идентификатору.
+        /// </summary>
+        /// <param name="id">Идентификатор события, которое нужно удалить.</param>
+        /// <returns>
+        /// Возвращает <see cref="IActionResult"/>:
+        /// - 404 NotFound, если событие с указанным идентификатором не найдено.
+        /// - 204 NoContent, если событие успешно удалено.
+        /// </returns>
+        /// <remarks>
+        /// Доступно только для пользователей с ролью "Admin".
+        /// </remarks>
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteEvent(int id)
         {
@@ -198,6 +250,8 @@ namespace LandingAPI.Controllers
             await _eventRepository.DeleteEventAsync(event_);
             return NoContent();
         }
+
+        #endregion
 
         #endregion
     }

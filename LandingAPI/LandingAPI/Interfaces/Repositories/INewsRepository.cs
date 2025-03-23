@@ -66,8 +66,25 @@ namespace LandingAPI.Interfaces.Repositories
         /// </returns>
         Task<bool> NewsExistsByTitleAsync(string title);
 
+        /// <summary>
+        /// Добавляет новую новость в базу данных.
+        /// </summary>
+        /// <param name="news">Новость для добавления.</param>
+        /// <returns>Задача, представляющая асинхронную операцию.</returns>
         Task AddNewsAsync(News news);
+
+        /// <summary>
+        /// Обновляет существующую новость в базе данных.
+        /// </summary>
+        /// <param name="news">Новость для обновления.</param>
+        /// <returns>Задача, представляющая асинхронную операцию.</returns>
         Task UpdateNewsAsync(News news);
+
+        /// <summary>
+        /// Удаляет новость из базы данных.
+        /// </summary>
+        /// <param name="news">Новость для удаления.</param>
+        /// <returns>Задача, представляющая асинхронную операцию.</returns>
         Task DeleteNewsAsync(News news);
 
         #endregion

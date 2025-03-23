@@ -21,6 +21,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IEventRepository, EventRepository>();
 builder.Services.AddScoped<IFilesRepository, FilesRepository>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

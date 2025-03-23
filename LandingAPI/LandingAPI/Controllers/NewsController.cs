@@ -29,7 +29,6 @@ namespace LandingAPI.Controllers
     /// <summary>
     /// Контроллер для управления новостями.
     /// </summary>
-    [Authorize(Roles = "Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class NewsController : Controller
@@ -146,6 +145,21 @@ namespace LandingAPI.Controllers
 
         #endregion
 
+        #region CreateNews
+
+        /// <summary>
+        /// Создает новую новость.
+        /// </summary>
+        /// <param name="model">Модель данных для создания новости, содержащая заголовок, содержание и идентификатор файла.</param>
+        /// <returns>
+        /// Возвращает <see cref="IActionResult"/>:
+        /// - 400 BadRequest, если модель данных невалидна.
+        /// - 200 OK с данными созданной новости.
+        /// </returns>
+        /// <remarks>
+        /// Доступно только для пользователей с ролью "Admin".
+        /// </remarks>
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> CreateNews([FromBody] NewsDTO model)
         {
@@ -165,6 +179,25 @@ namespace LandingAPI.Controllers
             return Ok(news);
         }
 
+        #endregion
+
+        #region UpdateNews
+
+        /// <summary>
+        /// Обновляет существующую новость.
+        /// </summary>
+        /// <param name="id">Идентификатор новости, которую нужно обновить.</param>
+        /// <param name="model">Модель данных для обновления новости, содержащая новый заголовок, содержание и идентификатор файла.</param>
+        /// <returns>
+        /// Возвращает <see cref="IActionResult"/>:
+        /// - 400 BadRequest, если модель данных невалидна.
+        /// - 404 NotFound, если новость с указанным идентификатором не найдена.
+        /// - 200 OK с данными обновленной новости.
+        /// </returns>
+        /// <remarks>
+        /// Доступно только для пользователей с ролью "Admin".
+        /// </remarks>
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateNews(int id, [FromBody] NewsDTO model)
         {
@@ -173,7 +206,7 @@ namespace LandingAPI.Controllers
 
             var news = await _newsRepository.GetNewsAsync(id);
             if (news == null)
-                return NotFound();
+                return NotFound("Новость не найдена.");
 
             news.Title = model.Title;
             news.Content = model.Content;
@@ -183,16 +216,35 @@ namespace LandingAPI.Controllers
             return Ok(news);
         }
 
+        #endregion
+
+        #region DeleteNews
+
+        /// <summary>
+        /// Удаляет новость по ее идентификатору.
+        /// </summary>
+        /// <param name="id">Идентификатор новости, которую нужно удалить.</param>
+        /// <returns>
+        /// Возвращает <see cref="IActionResult"/>:
+        /// - 404 NotFound, если новость с указанным идентификатором не найдена.
+        /// - 204 NoContent, если новость успешно удалена.
+        /// </returns>
+        /// <remarks>
+        /// Доступно только для пользователей с ролью "Admin".
+        /// </remarks>
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteNews(int id)
         {
             var news = await _newsRepository.GetNewsAsync(id);
             if (news == null)
-                return NotFound();
+                return NotFound("Новость не найдена.");
 
             await _newsRepository.DeleteNewsAsync(news);
             return NoContent();
         }
+
+        #endregion
 
         #endregion
     }
