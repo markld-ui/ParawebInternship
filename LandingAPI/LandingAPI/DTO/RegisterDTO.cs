@@ -8,6 +8,12 @@
 
 #endregion
 
+#region Пространства имен
+
+using System.ComponentModel.DataAnnotations;
+
+#endregion
+
 namespace LandingAPI.DTO
 {
     #region Класс RegisterDTO
@@ -22,16 +28,25 @@ namespace LandingAPI.DTO
         /// <summary>
         /// Имя пользователя. Используется для идентификации пользователя в системе.
         /// </summary>
+        [Required(ErrorMessage = "Имя пользователя обязательно")]
+        [MinLength(3, ErrorMessage = "Имя пользователя должно содержать минимум 3 символа")]
+        [MaxLength(20, ErrorMessage = "Имя пользователя не должно превышать 20 символов")]
         public string Username { get; set; }
 
         /// <summary>
         /// Электронная почта пользователя. Используется для идентификации и связи с пользователем.
-        /// </summary>
+        /// </summary> 
+        [Required(ErrorMessage = "Почта обязательна")]
+        [EmailAddress(ErrorMessage = "Введите корректный адрес электронной почты")]
         public string Email { get; set; }
 
         /// <summary>
         /// Пароль пользователя. Используется для аутентификации.
         /// </summary>
+        [Required(ErrorMessage = "Пароль обязателен")]
+        [MinLength(8, ErrorMessage = "Пароль должен содержать минимум 8 символов")]
+        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$",
+                ErrorMessage = "Пароль должен содержать цифры, заглавные и строчные буквы")]
         public string Password { get; set; }
 
         #endregion

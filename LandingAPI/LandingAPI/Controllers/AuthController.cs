@@ -38,6 +38,7 @@ namespace LandingAPI.Controllers
         private readonly JwtService _jwtService;
         private readonly IPasswordHasher _passwordHasher;
         private readonly ILogger<AuthController> _logger;
+        private const int _refreshTokenExpiryDays = 7;
 
         #endregion
 
@@ -99,7 +100,7 @@ namespace LandingAPI.Controllers
                     PasswordHash = _passwordHasher.Generate(model.Password),
                     CreatedAt = DateTime.UtcNow,
                     RefreshToken = refreshToken,
-                    RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(RefreshTokenExpiryDays)
+                    RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(_refreshTokenExpiryDays)
                 };
 
                 await _userRepository.AddUserAsync(user);
@@ -151,7 +152,7 @@ namespace LandingAPI.Controllers
             var refreshToken = _jwtService.GenerateRefreshToken();
 
             user.RefreshToken = refreshToken;
-            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7); // Срок действия refresh token — 7 дней
+            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(_refreshTokenExpiryDays);
 
             await _userRepository.UpdateUserAsync(user);
 
@@ -193,7 +194,7 @@ namespace LandingAPI.Controllers
             var newRefreshToken = _jwtService.GenerateRefreshToken();
 
             user.RefreshToken = newRefreshToken;
-            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7); // Например, срок действия refresh token — 7 дней
+            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(_refreshTokenExpiryDays);
 
             await _userRepository.UpdateUserAsync(user);
 
