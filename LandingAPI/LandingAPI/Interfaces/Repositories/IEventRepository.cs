@@ -30,8 +30,16 @@ namespace LandingAPI.Interfaces.Repositories
         /// <summary>
         /// Получает список всех событий.
         /// </summary>
-        /// <returns>Коллекция событий.</returns>
-        Task<ICollection<Event>> GetEventsAsync();
+        /// <param name="pageNumber">Номер страницы для получения (по умолчанию 1).</param>
+        /// <param name="pageSize">Количество мероприятий на странице (по умолчанию 10).</param>
+        /// <param name="sortField">Поле, по которому будет выполнена сортировка (по умолчанию "Event Id").</param>
+        /// <param name="ascending">Указывает, должна ли сортировка быть по возрастанию (по умолчанию true).</param>
+        /// <returns>Кортеж, содержащий коллекцию мероприятий и общее количество мероприятий.</returns>
+        Task<(ICollection<Event> Events, int TotalCount)> GetEventsAsync(
+            int pageNumber = 1,
+            int pageSize = 10,
+            string sortField = "EventId",
+            bool ascending = true);
 
         /// <summary>
         /// Получает событие по его идентификатору.

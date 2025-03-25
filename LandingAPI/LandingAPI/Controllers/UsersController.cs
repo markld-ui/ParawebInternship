@@ -71,17 +71,21 @@ namespace LandingAPI.Controllers
         /// </returns>
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<UserDTO>), 200)]
-        public async Task<IActionResult> GetUsersAsync()
+        public async Task<IActionResult> GetUsersAsync(
+            [FromQuery] int page = 1,
+            [FromQuery] int size = 10,
+            [FromQuery] string sort = "UserId",
+            [FromQuery] bool asc = true)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var users = await _userRepository.GetUsersAsync();
+            var (users, totalCount) = await _userRepository.GetUsersAsync(page, size, sort, asc);
             if (users == null)
                 return NotFound();
 
             var usersDtos = _mapper.Map<List<UserDTO>>(users);
-            return Ok(usersDtos);
+            return Ok(new { Users = usersDtos, TotalCount = totalCount});
         }
 
         #endregion

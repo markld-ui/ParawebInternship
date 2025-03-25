@@ -63,9 +63,9 @@ namespace LandingAPI.Services.Seeding
             {
                 var roles = new List<Role>
                 {
-                    new Role { Name = "Admin" },
-                    new Role { Name = "User" },
-                    new Role { Name = "Editor" }
+                    new Role { RoleId = 1, Name = "Admin" },
+                    new Role { RoleId = 2, Name = "User" },
+                    new Role { RoleId = 3, Name = "Editor" }
                 };
                 _dataContext.Roles.AddRange(roles);
                 _dataContext.SaveChanges();

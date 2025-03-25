@@ -54,9 +54,28 @@ namespace LandingAPI.Repository
         /// Получает список всех новостей, отсортированных по идентификатору.
         /// </summary>
         /// <returns>Коллекция новостей.</returns>
-        public async Task<ICollection<News>> GetNewsAsync()
+        public async Task<(ICollection<News> News, int TotalCount)> GetNewsAsync(
+            int pageNumber = 1,
+            int pageSize = 10,
+            string sortField = "NewsId",
+            bool ascending = true)
         {
-            return await _context.News.OrderBy(n => n.NewsId).ToListAsync();
+            var query = _context.News.AsQueryable();
+
+            query = sortField switch
+            {
+                "Title" => ascending ? query.OrderBy(n => n.Title) : query.OrderByDescending(n => n.Title),
+                "Content" => ascending ? query.OrderBy(n => n.Content) : query.OrderByDescending(n => n.Content),
+                _ => ascending ? query.OrderBy(n => n.NewsId) : query.OrderByDescending(n => n.NewsId)
+            };
+
+            var totalCount = await query.CountAsync();
+            var news = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (news, totalCount);
         }
 
         /// <summary>

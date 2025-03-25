@@ -11,6 +11,7 @@
 #region Пространства имен
 
 using LandingAPI.Models;
+using System.ComponentModel.DataAnnotations;
 
 #endregion
 
@@ -33,12 +34,18 @@ namespace LandingAPI.DTO
         /// <summary>
         /// Заголовок события. Обязательное поле.
         /// </summary>
-        public required string Title { get; set; }
+        [Required(ErrorMessage = "Заголовок является обязательным")]
+        [MinLength(1, ErrorMessage = "Заголовок не может быть пустым")]
+        [MaxLength(100, ErrorMessage = "Заголовок не может превышать 100 символов")]
+        public string Title { get; set; }
 
         /// <summary>
         /// Описание события. Обязательное поле.
         /// </summary>
-        public required string Description { get; set; }
+        [Required(ErrorMessage = "Описание является обязательным")]
+        [MinLength(1, ErrorMessage = "Описание не может быть пустым")]
+        [MaxLength(5000, ErrorMessage = "Описание не может превышать 5000 символов")]
+        public string Description { get; set; }
 
         /// <summary>
         /// Дата и время начала события. Обязательное поле.

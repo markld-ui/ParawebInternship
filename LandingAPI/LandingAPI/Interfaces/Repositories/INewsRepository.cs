@@ -31,8 +31,16 @@ namespace LandingAPI.Interfaces.Repositories
         /// <summary>
         /// Получает список всех новостей.
         /// </summary>
-        /// <returns>Коллекция новостей.</returns>
-        Task<ICollection<News>> GetNewsAsync();
+        /// <param name="pageNumber">Номер страницы для получения (по умолчанию 1).</param>
+        /// <param name="pageSize">Количество новостей на странице (по умолчанию 10).</param>
+        /// <param name="sortField">Поле, по которому будет выполнена сортировка (по умолчанию "News Id").</param>
+        /// <param name="ascending">Указывает, должна ли сортировка быть по возрастанию (по умолчанию true).</param>
+        /// <returns>Кортеж, содержащий коллекцию новостей и общее количество новостей.</returns>
+        Task<(ICollection<News> News, int TotalCount)> GetNewsAsync(
+            int pageNumber = 1,
+            int pageSize = 10,
+            string sortField = "NewsId",
+            bool ascending = true);
 
         /// <summary>
         /// Получает новость по ее идентификатору.

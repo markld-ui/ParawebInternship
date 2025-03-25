@@ -16,6 +16,7 @@ using LandingAPI.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 #endregion
@@ -54,9 +55,30 @@ namespace LandingAPI.Repository
         /// Получает список всех пользователей, отсортированных по идентификатору.
         /// </summary>
         /// <returns>Коллекция пользователей.</returns>
-        public async Task<ICollection<User>> GetUsersAsync()
+        public async Task<(ICollection<User> Users, int TotalCount)> GetUsersAsync(
+            int pageNumber = 1,
+            int pageSize = 10,
+            string sortField = "UserId",
+            bool ascending = true)
         {
-            return await _context.Users.OrderBy(u => u.UserId).ToListAsync();
+            var query = _context.Users.AsQueryable();
+
+            query = sortField switch
+            {
+                "Email" => ascending ? query.OrderBy(u => u.Email) : query.OrderByDescending(u => u.Email),
+                "Username" => ascending ? query.OrderBy(u => u.Username) : query.OrderByDescending(u => u.Username),
+                _ => ascending ? query.OrderBy(u => u.UserId) : query.OrderByDescending(u => u.UserId)
+            };
+
+            // Пагинация
+            var totalCount = await query.CountAsync();
+            var users = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (users, totalCount);
+            //return await _context.Users.OrderBy(u => u.UserId).ToListAsync();
         }
 
         /// <summary>

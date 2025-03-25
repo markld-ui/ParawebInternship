@@ -70,17 +70,21 @@ namespace LandingAPI.Controllers
         /// </returns>
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<NewsDTO>), 200)]
-        public async Task<IActionResult> GetNewsAsync()
+        public async Task<IActionResult> GetNewsAsync(
+            [FromQuery] int page = 1,
+            [FromQuery] int size = 10,
+            [FromQuery] string sort = "NewsId",
+            [FromQuery] bool asc = true)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var news = await _newsRepository.GetNewsAsync();
+            var (news, totalCount) = await _newsRepository.GetNewsAsync();
             if (news == null)
                 return NotFound();
 
             var newsDtos = _mapper.Map<List<NewsDTO>>(news);
-            return Ok(newsDtos);
+            return Ok(new { News = newsDtos, TotalCount = totalCount });
         }
 
         #endregion

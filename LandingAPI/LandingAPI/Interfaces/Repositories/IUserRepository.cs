@@ -28,10 +28,18 @@ namespace LandingAPI.Interfaces.Repositories
         #region Методы
 
         /// <summary>
-        /// Получает список всех пользователей.
+        /// Асинхронно получает список пользователей с поддержкой пагинации и сортировки.
         /// </summary>
-        /// <returns>Коллекция пользователей.</returns>
-        Task<ICollection<User>> GetUsersAsync();
+        /// <param name="pageNumber">Номер страницы для получения (по умолчанию 1).</param>
+        /// <param name="pageSize">Количество пользователей на странице (по умолчанию 10).</param>
+        /// <param name="sortField">Поле, по которому будет выполнена сортировка (по умолчанию "User Id").</param>
+        /// <param name="ascending">Указывает, должна ли сортировка быть по возрастанию (по умолчанию true).</param>
+        /// <returns>Кортеж, содержащий коллекцию пользователей и общее количество пользователей.</returns>
+        Task<(ICollection<User> Users, int TotalCount)> GetUsersAsync(
+            int pageNumber = 1,
+            int pageSize = 10,
+            string sortField = "UserId",
+            bool ascending = true);
 
         /// <summary>
         /// Получает пользователя по его идентификатору.

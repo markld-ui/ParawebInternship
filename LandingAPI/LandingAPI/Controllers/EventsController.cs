@@ -71,17 +71,21 @@ namespace LandingAPI.Controllers
         /// </returns>
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<EventDTO>), 200)]
-        public async Task<IActionResult> GetEvents()
+        public async Task<IActionResult> GetEvents(
+            [FromQuery] int page = 1,
+            [FromQuery] int size = 10,
+            [FromQuery] string sort = "EventId",
+            [FromQuery] bool asc = true)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var events = await _eventRepository.GetEventsAsync();
+            var (events, totalCount) = await _eventRepository.GetEventsAsync();
             if (events == null)
                 return NotFound();
 
             var eventDtos = _mapper.Map<List<EventDTO>>(events);
-            return Ok(eventDtos);
+            return Ok(new { Events = eventDtos, TotalCount = totalCount});
         }
 
         #endregion

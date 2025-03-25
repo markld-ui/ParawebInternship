@@ -17,6 +17,7 @@ using Microsoft.EntityFrameworkCore;
 using LandingAPI.Interfaces.Repositories;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.AspNetCore.Mvc;
 
 #endregion
 
@@ -76,9 +77,28 @@ namespace LandingAPI.Repository
         /// Получает список всех событий, отсортированных по идентификатору.
         /// </summary>
         /// <returns>Коллекция событий.</returns>
-        public async Task<ICollection<Event>> GetEventsAsync()
+        public async Task<(ICollection<Event> Events, int TotalCount)> GetEventsAsync(
+            int pageNumber = 1,
+            int pageSize = 10,
+            string sortField = "EventId",
+            bool ascending = true)
         {
-            return await _context.Events.OrderBy(e => e.EventId).ToListAsync();
+            var query = _context.Events.AsQueryable();
+
+            query = sortField switch
+            {
+                "Title" => ascending ? query.OrderBy(e => e.Title) : query.OrderByDescending(e => e.Title),
+                "Description" => ascending ? query.OrderBy(e => e.Description) : query.OrderByDescending(e => e.Description),
+                _ => ascending ? query.OrderBy(e => e.EventId) : query.OrderByDescending(e => e.EventId)
+            };
+
+            var totalCount = await query.CountAsync();
+            var events = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (events, totalCount);
         }
 
         /// <summary>
