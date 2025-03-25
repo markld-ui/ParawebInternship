@@ -13,11 +13,11 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using LandingAPI.Models;
-using LandingAPI.DTO;
 using LandingAPI.Services.Auth;
 using LandingAPI.Interfaces.Auth;
 using LandingAPI.Interfaces.Repositories;
 using System.Security.Claims;
+using LandingAPI.DTO.Auth;
 
 #endregion
 

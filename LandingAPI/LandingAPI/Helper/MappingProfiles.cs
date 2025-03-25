@@ -11,8 +11,10 @@
 #region Пространства имен
 
 using AutoMapper;
-using LandingAPI.DTO;
+using LandingAPI.DTO.Events;
+using LandingAPI.DTO.Files;
 using LandingAPI.DTO.News;
+using LandingAPI.DTO.Users;
 using LandingAPI.Models;
 
 #endregion
@@ -35,9 +37,16 @@ namespace LandingAPI.Helper
         {
             // Настройка маппинга для сущности News и NewsDTO
             CreateMap<News, NewsDTO>();
+            CreateMap<News, CreateNewsDTO>();
+            CreateMap<News, NewsDetailsDTO>();
+            CreateMap<News, NewsShortDTO>();
+            CreateMap<News, UpdateNewsDTO>();
 
             // Настройка маппинга для сущности User и UserDTO
             CreateMap<User, UserDTO>();
+            CreateMap<User, UserDetailsDTO>();
+            CreateMap<User, UserShortDTO>();
+            CreateMap<User, UpdateUserDTO>();
 
             // Настройка маппинга для сущности Event и EventDTO
             CreateMap<Event, EventDTO>();

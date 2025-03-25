@@ -12,13 +12,14 @@
 
 using LandingAPI.Models;
 using Microsoft.AspNetCore.Mvc;
-using LandingAPI.DTO;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using LandingAPI.Interfaces.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using LandingAPI.Interfaces.Auth;
 using LandingAPI.DTO.News;
+using LandingAPI.DTO.Users;
+using LandingAPI.Helper;
 
 #endregion
 
@@ -68,25 +69,36 @@ namespace LandingAPI.Controllers
         /// Возвращает <see cref="IActionResult"/>:
         /// - 400 BadRequest, если модель данных невалидна.
         /// - 404 NotFound, если пользователи не найдены.
-        /// - 200 OK с списком пользователей в формате <see cref="UserDTO"/>.
+        /// - 200 OK с списком пользователей в формате <see cref="UserShortDTO"/>.
         /// </returns>
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<UserDTO>), 200)]
+        [ProducesResponseType(typeof(PagedResponse<UserShortDTO>), 200)]
         public async Task<IActionResult> GetUsersAsync(
             [FromQuery] int page = 1,
             [FromQuery] int size = 10,
             [FromQuery] string sort = "UserId",
             [FromQuery] bool asc = true)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             var (users, totalCount) = await _userRepository.GetUsersAsync(page, size, sort, asc);
-            if (users == null)
-                return NotFound();
+            if (users == null || !users.Any())
+                return NotFound("Пользователи не найдены");
 
-            var usersDtos = _mapper.Map<List<UserDTO>>(users);
-            return Ok(new { Users = usersDtos, TotalCount = totalCount});
+            var usersDtos = users.Select(u => new UserShortDTO
+            {
+                UserId = u.UserId,
+                Username = u.Username,
+                Email = u.Email,
+                CreatedAt = u.CreatedAt,
+                MainRole = u.UserRoles.FirstOrDefault()?.Role.Name ?? "Без роли"
+            }).ToList();
+
+            return Ok(new PagedResponse<UserShortDTO>
+            {
+                Data = usersDtos,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = size
+            });
         }
 
         #endregion
@@ -101,22 +113,28 @@ namespace LandingAPI.Controllers
         /// Возвращает <see cref="IActionResult"/>:
         /// - 404 NotFound, если пользователь с указанным идентификатором не найден.
         /// - 400 BadRequest, если модель данных невалидна.
-        /// - 200 OK с данными пользователя в формате <see cref="UserDTO"/>.
+        /// - 200 OK с данными пользователя в формате <see cref="UserDetailsDTO"/>.
         /// </returns>
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(IEnumerable<UserDTO>), 200)]
-        [ProducesResponseType(400)]
+        [ProducesResponseType(typeof(UserDetailsDTO), 200)]
         public async Task<IActionResult> GetUserAsync(int id)
         {
-            if (!await _userRepository.UserExistsByIdAsync(id))
-                return NotFound();
+            var user = await _userRepository.GetUserByIdAsync(id);
+            if (user == null)
+                return NotFound("Пользователь не найден");
 
-            if (!ModelState.IsValid)
-                return BadRequest();
-
-            var users = await _userRepository.GetUserByIdAsync(id);
-            var usersDtos = _mapper.Map<UserDTO>(users);
-            return Ok(usersDtos);
+            return Ok(new UserDetailsDTO
+            {
+                UserId = user.UserId,
+                Username = user.Username,
+                Email = user.Email,
+                CreatedAt = user.CreatedAt,
+                Roles = user.UserRoles.Select(ur => new RoleDTO
+                {
+                    RoleId = ur.RoleId,
+                    Name = ur.Role.Name
+                }).ToList()
+            });
         }
 
         #endregion
@@ -195,21 +213,39 @@ namespace LandingAPI.Controllers
         /// - 200 OK с обновленными данными пользователя.
         /// </returns>
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser(int id, [FromBody] UserDTO model)
+        public async Task<ActionResult<UserDetailsDTO>> UpdateUser(int id, [FromBody] UpdateUserDTO dto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             var user = await _userRepository.GetUserByIdAsync(id);
             if (user == null)
-                return NotFound();
+                return NotFound("Пользователь не найден");
 
-            user.Username = model.Username;
-            user.Email = model.Email;
-            user.PasswordHash = _passwordHasher.Generate(model.Password);
+            if (!string.IsNullOrEmpty(dto.Username) && dto.Username != user.Username)
+            {
+                if (await _userRepository.UserExistsByNameAsync(dto.Username))
+                    return BadRequest("Пользователь с таким именем уже существует");
+
+                user.Username = dto.Username;
+            }
+
+            if (!string.IsNullOrEmpty(dto.Email) && dto.Email != user.Email)
+            {
+                if (await _userRepository.UserExistsByEmailAsync(dto.Email))
+                    return BadRequest("Пользователь с таким email уже существует");
+
+                user.Email = dto.Email;
+            }
+
+            if (!string.IsNullOrEmpty(dto.Password))
+                user.PasswordHash = _passwordHasher.Generate(dto.Password);
+
+            if (dto.RoleId.HasValue)
+            {
+                user.UserRoles.Clear();
+                user.UserRoles.Add(new UserRole { RoleId = dto.RoleId.Value });
+            }
 
             await _userRepository.UpdateUserAsync(user);
-            return Ok(user);
+            return Ok(await MapToDetailsDTO(user));
         }
 
         #endregion
@@ -234,6 +270,37 @@ namespace LandingAPI.Controllers
 
             await _userRepository.DeleteUserAsync(user);
             return NoContent();
+        }
+
+        #endregion
+
+        #region MapToDetailsDTO
+
+        /// <summary>
+        /// Преобразует объект <see cref="User "/> в объект <see cref="User DetailsDTO"/>.
+        /// </summary>
+        /// <param name="user">Объект пользователя, который нужно преобразовать.</param>
+        /// <returns>
+        /// Возвращает объект <see cref="User DetailsDTO"/>, содержащий детали пользователя.
+        /// </returns>
+        /// <remarks>
+        /// Метод создает DTO (Data Transfer Object) для передачи данных о пользователе,
+        /// включая информацию о ролях пользователя.
+        /// </remarks>
+        private async Task<UserDetailsDTO> MapToDetailsDTO(User user)
+        {
+            return new UserDetailsDTO
+            {
+                UserId = user.UserId,
+                Username = user.Username,
+                Email = user.Email,
+                CreatedAt = user.CreatedAt,
+                Roles = user.UserRoles.Select(ur => new RoleDTO
+                {
+                    RoleId = ur.RoleId,
+                    Name = ur.Role.Name
+                }).ToList()
+            };
         }
 
         #endregion

@@ -16,7 +16,7 @@
 
 #endregion
 
-namespace LandingAPI.DTO
+namespace LandingAPI.DTO.Auth
 {
     #region Класс RefreshTokenDTO
 

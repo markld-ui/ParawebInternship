@@ -14,7 +14,7 @@ using LandingAPI.Models;
 
 #endregion
 
-namespace LandingAPI.DTO
+namespace LandingAPI.DTO.Users
 {
     #region Класс UserDTO
 

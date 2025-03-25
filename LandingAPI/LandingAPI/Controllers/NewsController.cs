@@ -73,7 +73,7 @@ namespace LandingAPI.Controllers
         /// Возвращает <see cref="IActionResult"/>:
         /// - 400 BadRequest, если модель данных невалидна.
         /// - 404 NotFound, если новости не найдены.
-        /// - 200 OK с списком новостей в формате <see cref="NewsDTO"/>.
+        /// - 200 OK с списком новостей в формате <see cref="NewsShortDTO"/>.
         /// </returns>
         [HttpGet]
         [ProducesResponseType(typeof(PagedResponse<NewsShortDTO>), 200)]
@@ -120,7 +120,7 @@ namespace LandingAPI.Controllers
         /// Возвращает <see cref="IActionResult"/>:
         /// - 404 NotFound, если новость с указанным идентификатором не найдена.
         /// - 400 BadRequest, если модель данных невалидна.
-        /// - 200 OK с данными новости в формате <see cref="NewsDTO"/>.
+        /// - 200 OK с данными новости в формате <see cref="NewsDetailsDTO"/>.
         /// </returns>
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(NewsDetailsDTO), 200)]
@@ -145,10 +145,10 @@ namespace LandingAPI.Controllers
         /// Возвращает <see cref="IActionResult"/>:
         /// - 404 NotFound, если новость с указанным заголовком не найдена.
         /// - 400 BadRequest, если модель данных невалидна.
-        /// - 200 OK с данными новости в формате <see cref="NewsDTO"/>.
+        /// - 200 OK с данными новости в формате <see cref="NewsDetailsDTO"/>.
         /// </returns>
         [HttpGet("search/{title}")]
-        [ProducesResponseType(typeof(IEnumerable<NewsDTO>), 200)]
+        [ProducesResponseType(typeof(IEnumerable<NewsDetailsDTO>), 200)]
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetNewByTitleAsync(string title)
         {
@@ -156,7 +156,7 @@ namespace LandingAPI.Controllers
                 return NotFound();
 
             var news = await _newsRepository.GetNewsByTitleAsync(title);
-            var newsDtos = _mapper.Map<NewsDTO>(news);
+            var newsDtos = _mapper.Map<NewsDetailsDTO>(news);
             if (!ModelState.IsValid)
                 return BadRequest();
             return Ok(newsDtos);
@@ -287,6 +287,19 @@ namespace LandingAPI.Controllers
 
         #endregion
 
+        #region MapToDetailsDto
+
+        /// <summary>
+        /// Преобразует объект <see cref="News"/> в объект <see cref="NewsDetailsDTO"/>.
+        /// </summary>
+        /// <param name="news">Объект новости, который нужно преобразовать.</param>
+        /// <returns>
+        /// Возвращает объект <see cref="NewsDetailsDTO"/>, содержащий детали новости.
+        /// </returns>
+        /// <remarks>
+        /// Метод создает DTO (Data Transfer Object) для передачи данных о новости,
+        /// включая информацию о создателе и файле, если он доступен.
+        /// </remarks>
         private async Task<NewsDetailsDTO> MapToDetailsDto(News news)
         {
             return new NewsDetailsDTO
@@ -308,6 +321,7 @@ namespace LandingAPI.Controllers
                 } : null
             };
         }
+        #endregion
 
         #endregion
     }

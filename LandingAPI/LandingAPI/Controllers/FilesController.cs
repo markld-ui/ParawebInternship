@@ -10,13 +10,13 @@
 
 #region Пространства имен
 
-using LandingAPI.DTO;
 using Microsoft.AspNetCore.Mvc;
 using AutoMapper;
 using LandingAPI.Models;
 using Microsoft.EntityFrameworkCore;
 using LandingAPI.Interfaces.Repositories;
 using LandingAPI.Services;
+using LandingAPI.DTO.Files;
 
 #endregion
 

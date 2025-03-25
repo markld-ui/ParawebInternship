@@ -9,7 +9,7 @@
 
 #endregion
 
-using LandingAPI.DTO;
+using LandingAPI.DTO.Roles;
 using LandingAPI.Interfaces.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

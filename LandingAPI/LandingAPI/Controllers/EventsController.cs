@@ -14,7 +14,7 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
-using LandingAPI.DTO;
+using LandingAPI.DTO.Events;
 using LandingAPI.Interfaces.Repositories;
 using LandingAPI.Models;
 using LandingAPI.Repository;

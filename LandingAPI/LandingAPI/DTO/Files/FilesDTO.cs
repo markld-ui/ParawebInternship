@@ -14,7 +14,7 @@ using LandingAPI.Models;
 
 #endregion
 
-namespace LandingAPI.DTO
+namespace LandingAPI.DTO.Files
 {
     #region Класс FilesDTO
 

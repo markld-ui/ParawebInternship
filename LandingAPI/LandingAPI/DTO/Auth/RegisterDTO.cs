@@ -14,7 +14,7 @@ using System.ComponentModel.DataAnnotations;
 
 #endregion
 
-namespace LandingAPI.DTO
+namespace LandingAPI.DTO.Auth
 {
     #region Класс RegisterDTO
 

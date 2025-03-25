@@ -15,7 +15,7 @@ using System.ComponentModel.DataAnnotations;
 
 #endregion
 
-namespace LandingAPI.DTO
+namespace LandingAPI.DTO.Events
 {
     #region Класс EventDTO
 
