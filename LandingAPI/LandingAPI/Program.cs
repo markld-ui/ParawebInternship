@@ -9,6 +9,8 @@ using LandingAPI.Services.Auth;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using LandingAPI.Services;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -50,6 +52,20 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSettings["Secret"]))
     };
 });
+
+builder.Services.AddScoped(provider =>
+{
+    var config = provider.GetRequiredService<IConfiguration>();
+    var uploadDirectory = Path.Combine(Directory.GetCurrentDirectory(), config["FileStorage:UploadDirectory"]);
+    var filesRepository = provider.GetRequiredService<IFilesRepository>();
+    return new FileService(filesRepository, uploadDirectory);
+});
+
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    });
 
 var app = builder.Build();
 

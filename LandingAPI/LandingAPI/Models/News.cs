@@ -5,6 +5,11 @@
 /// Класс, представляющий сущность "Новость" (News).
 /// Используется для хранения данных о новостях, включая их заголовок, содержание, автора и связанные файлы.
 /// </summary>
+#endregion
+
+#region Пространства имен
+
+using System.ComponentModel.DataAnnotations.Schema;
 
 #endregion
 
@@ -52,6 +57,7 @@ namespace LandingAPI.Models
         /// <summary>
         /// Файл, связанный с новостью. Может быть null.
         /// </summary>
+        [ForeignKey("FileId")]
         public Files? File { get; set; }
 
         /// <summary>

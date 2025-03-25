@@ -60,7 +60,10 @@ namespace LandingAPI.Repository
             string sortField = "NewsId",
             bool ascending = true)
         {
-            var query = _context.News.AsQueryable();
+            var query = _context.News
+                .Include(n => n.File)
+                .Include(n => n.CreatedBy)
+                .AsQueryable();
 
             query = sortField switch
             {

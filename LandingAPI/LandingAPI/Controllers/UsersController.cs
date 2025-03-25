@@ -18,6 +18,7 @@ using Microsoft.EntityFrameworkCore;
 using LandingAPI.Interfaces.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using LandingAPI.Interfaces.Auth;
+using LandingAPI.DTO.News;
 
 #endregion
 

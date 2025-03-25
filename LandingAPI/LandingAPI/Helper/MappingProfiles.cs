@@ -12,6 +12,7 @@
 
 using AutoMapper;
 using LandingAPI.DTO;
+using LandingAPI.DTO.News;
 using LandingAPI.Models;
 
 #endregion

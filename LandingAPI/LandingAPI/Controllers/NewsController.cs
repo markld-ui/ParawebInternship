@@ -12,9 +12,11 @@
 #region Пространства имен
 
 using AutoMapper;
-using LandingAPI.DTO;
+using LandingAPI.DTO.News;
+using LandingAPI.Helper;
 using LandingAPI.Interfaces.Repositories;
 using LandingAPI.Models;
+using LandingAPI.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -37,6 +39,8 @@ namespace LandingAPI.Controllers
 
         private readonly INewsRepository _newsRepository;
         private readonly IMapper _mapper;
+        private readonly IFilesRepository _filesRepository;
+        private readonly FileService _fileService;
 
         #endregion
 
@@ -47,10 +51,13 @@ namespace LandingAPI.Controllers
         /// </summary>
         /// <param name="newsRepository">Репозиторий для работы с новостями.</param>
         /// <param name="mapper">Объект для маппинга данных между моделями и DTO.</param>
-        public NewsController(INewsRepository newsRepository, IMapper mapper)
+        /// <param name="filesRepository">Репозиторий для работы с файлами.</param>
+        public NewsController(INewsRepository newsRepository, IMapper mapper, IFilesRepository filesRepository, FileService fileService)
         {
             _newsRepository = newsRepository;
             _mapper = mapper;
+            _filesRepository = filesRepository;
+            _fileService = fileService;
         }
 
         #endregion
@@ -69,7 +76,7 @@ namespace LandingAPI.Controllers
         /// - 200 OK с списком новостей в формате <see cref="NewsDTO"/>.
         /// </returns>
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<NewsDTO>), 200)]
+        [ProducesResponseType(typeof(PagedResponse<NewsShortDTO>), 200)]
         public async Task<IActionResult> GetNewsAsync(
             [FromQuery] int page = 1,
             [FromQuery] int size = 10,
@@ -79,12 +86,26 @@ namespace LandingAPI.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var (news, totalCount) = await _newsRepository.GetNewsAsync();
-            if (news == null)
-                return NotFound();
+            var (news, totalCount) = await _newsRepository.GetNewsAsync(page, size, sort, asc);
+            if (news == null || !news.Any())
+                return NotFound("Новости не найдены");
 
-            var newsDtos = _mapper.Map<List<NewsDTO>>(news);
-            return Ok(new { News = newsDtos, TotalCount = totalCount });
+            var newsDtos = news.Select(n => new NewsShortDTO
+            {
+                NewsId = n.NewsId,
+                Title = n.Title,
+                CreatedAt = n.CreatedAt,
+                AuthorName = n.CreatedBy.Username,
+                HasAttachment = n.FileId.HasValue
+            }).ToList();
+
+            return Ok(new PagedResponse<NewsShortDTO>
+            {
+                Data = newsDtos,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = size
+            });
         }
 
         #endregion
@@ -102,20 +123,14 @@ namespace LandingAPI.Controllers
         /// - 200 OK с данными новости в формате <see cref="NewsDTO"/>.
         /// </returns>
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(IEnumerable<NewsDTO>), 200)]
-        [ProducesResponseType(400)]
+        [ProducesResponseType(typeof(NewsDetailsDTO), 200)]
         public async Task<IActionResult> GetNewAsync(int id)
         {
             if (!await _newsRepository.NewsExistsAsync(id))
-                return NotFound();
-
-            if (!ModelState.IsValid)
-                return BadRequest();
+                return NotFound("Новость не найдена");
 
             var news = await _newsRepository.GetNewsAsync(id);
-            var newsDtos = _mapper.Map<NewsDTO>(news);
-
-            return Ok(newsDtos);
+            return Ok(await MapToDetailsDto(news));
         }
 
         #endregion
@@ -165,22 +180,30 @@ namespace LandingAPI.Controllers
         /// </remarks>
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        public async Task<IActionResult> CreateNews([FromBody] NewsDTO model)
+        public async Task<ActionResult<NewsDetailsDTO>> CreateNews([FromForm] CreateNewsDTO dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            int? fileId = null;
+            if (dto.File != null && dto.File.Length > 0)
+            {
+                var uploadedFile = await _fileService.UploadFileAsync(dto.File);
+                fileId = uploadedFile.FileId;
+            }
+
             var news = new News
             {
-                Title = model.Title,
-                Content = model.Content,
+                Title = dto.Title,
+                Content = dto.Content,
                 CreatedById = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value),
                 CreatedAt = DateTime.UtcNow,
-                FileId = model.FileId
+                FileId = fileId
             };
 
             await _newsRepository.AddNewsAsync(news);
-            return Ok(news);
+
+            return Ok(await MapToDetailsDto(news));
         }
 
         #endregion
@@ -203,21 +226,35 @@ namespace LandingAPI.Controllers
         /// </remarks>
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateNews(int id, [FromBody] NewsDTO model)
+        public async Task<ActionResult<NewsDetailsDTO>> UpdateNews(int id, [FromForm] UpdateNewsDTO dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             var news = await _newsRepository.GetNewsAsync(id);
             if (news == null)
-                return NotFound("Новость не найдена.");
+                return NotFound();
 
-            news.Title = model.Title;
-            news.Content = model.Content;
-            news.FileId = model.FileId;
+            // Обработка файла
+            if (dto.RemoveFile == true && news.FileId.HasValue)
+            {
+                await _fileService.DeleteFileAsync(news.FileId.Value);
+                news.FileId = null;
+            }
+            else if (dto.NewFile != null && dto.NewFile.Length > 0)
+            {
+                if (news.FileId.HasValue)
+                    await _fileService.DeleteFileAsync(news.FileId.Value);
+
+                var uploadedFile = await _fileService.UploadFileAsync(dto.NewFile);
+                news.FileId = uploadedFile.FileId;
+            }
+
+            news.Title = dto.Title;
+            news.Content = dto.Content;
 
             await _newsRepository.UpdateNewsAsync(news);
-            return Ok(news);
+            return Ok(await MapToDetailsDto(news));
         }
 
         #endregion
@@ -249,6 +286,28 @@ namespace LandingAPI.Controllers
         }
 
         #endregion
+
+        private async Task<NewsDetailsDTO> MapToDetailsDto(News news)
+        {
+            return new NewsDetailsDTO
+            {
+                NewsId = news.NewsId,
+                Title = news.Title,
+                Content = news.Content,
+                CreatedAt = news.CreatedAt,
+                CreatedBy = new AuthorDTO
+                {
+                    UserId = news.CreatedById,
+                    UserName = news.CreatedBy.Username
+                },
+                File = news.FileId.HasValue ? new FileInfoDTO
+                {
+                    FileId = news.FileId.Value,
+                    FileName = news.File.FileName,
+                    DownloadUrl = Url.Action("DownloadFile", "Files", new { id = news.FileId })
+                } : null
+            };
+        }
 
         #endregion
     }

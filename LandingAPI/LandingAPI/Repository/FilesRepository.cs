@@ -93,6 +93,18 @@ namespace LandingAPI.Repository
             return await _context.Files.OrderBy(f => f.FileId).ToListAsync();
         }
 
+        public async Task AddFileAsync(Files file)
+        {
+            await _context.Files.AddAsync(file);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteFileAsync(Files file)
+        {
+            _context.Files.Remove(file);
+            await _context.SaveChangesAsync();
+        }
+
         #region Методы для получения файлов, связанных с новостями и событиями
 
         /// <summary>

@@ -16,6 +16,7 @@ using AutoMapper;
 using LandingAPI.Models;
 using Microsoft.EntityFrameworkCore;
 using LandingAPI.Interfaces.Repositories;
+using LandingAPI.Services;
 
 #endregion
 
@@ -34,6 +35,7 @@ namespace LandingAPI.Controllers
 
         private readonly IFilesRepository _filesRepository;
         private readonly IMapper _mapper;
+        private readonly FileService _fileService;
 
         #endregion
 
@@ -44,10 +46,12 @@ namespace LandingAPI.Controllers
         /// </summary>
         /// <param name="filesRepository">Репозиторий для работы с файлами.</param>
         /// <param name="mapper">Объект для маппинга данных между моделями и DTO.</param>
-        public FilesController(IFilesRepository filesRepository, IMapper mapper)
+        /// /// <param name="configuration">Конфигурация приложения.</param>
+        public FilesController(IFilesRepository filesRepository, IMapper mapper, IConfiguration configuration, FileService fileService)
         {
             _filesRepository = filesRepository;
             _mapper = mapper;
+            _fileService = fileService;
         }
 
         #endregion
@@ -174,6 +178,82 @@ namespace LandingAPI.Controllers
                 return NotFound();
 
             return Ok(fileDtos);
+        }
+
+        #endregion
+
+        #region UploadFile
+        /// <summary>
+        /// Загружает файл на сервер.
+        /// </summary>
+        /// <param name="file">Файл для загрузки.</param>
+        /// <returns>
+        /// Возвращает <see cref="IActionResult"/>:
+        /// - 400 BadRequest, если файл не был предоставлен.
+        /// - 200 OK с данными загруженного файла.
+        /// </returns>
+        [HttpPost("upload")]
+        [ProducesResponseType(typeof(FilesDTO), 200)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> UploadFile(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("Файл не был предоставлен.");
+
+            try
+            {
+                var uploadedFile = await _fileService.UploadFileAsync(file);
+                var fileDto = _mapper.Map<FilesDTO>(uploadedFile);
+                return Ok(fileDto);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Ошибка при загрузке файла: {ex.Message}");
+            }
+        }
+
+        #endregion
+
+        #region DownloadFile
+        /// <summary>
+        /// Скачивает файл по его идентификатору.
+        /// </summary>
+        /// <param name="id">Идентификатор файла.</param>
+        /// <returns>
+        /// Возвращает <see cref="IActionResult"/>:
+        /// - 404 NotFound, если файл не найден.
+        /// - 200 OK с содержимым файла.
+        /// </returns>
+        [HttpGet("download/{id}")]
+        public async Task<IActionResult> DownloadFile(int id)
+        {
+            var (file, stream) = await _fileService.GetFileStreamAsync(id);
+            if (file == null || stream == null)
+                return NotFound();
+
+            return File(stream, "application/octet-stream", file.FileName);
+        }
+
+        #endregion
+
+        #region DeleteFile
+        /// <summary>
+        /// Удаляет файл по его идентификатору.
+        /// </summary>
+        /// <param name="id">Идентификатор файла.</param>
+        /// <returns>
+        /// Возвращает <see cref="IActionResult"/>:
+        /// - 404 NotFound, если файл не найден.
+        /// - 204 NoContent, если файл успешно удален.
+        /// </returns>
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteFile(int id)
+        {
+            var result = await _fileService.DeleteFileAsync(id);
+            if (!result)
+                return NotFound();
+
+            return NoContent();
         }
 
         #endregion

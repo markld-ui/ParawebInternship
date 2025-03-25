@@ -58,6 +58,20 @@ namespace LandingAPI.Interfaces.Repositories
         /// </returns>
         Task<bool> FileExistsByNameAsync(string name);
 
+        /// <summary>
+        /// Добавляет новый файл в базу данных.
+        /// </summary>
+        /// <param name="file">Файл для добавления.</param>
+        /// <returns>Задача, представляющая асинхронную операцию.</returns>
+        Task AddFileAsync(Files file);
+
+        /// <summary>
+        /// Удаляет файл из базы данных.
+        /// </summary>
+        /// <param name="file">Файл для удаления.</param>
+        /// <returns>Задача, представляющая асинхронную операцию.</returns>
+        Task DeleteFileAsync(Files file);
+
         #region Методы для получения файлов, связанных с новостями и событиями
 
         /// <summary>
