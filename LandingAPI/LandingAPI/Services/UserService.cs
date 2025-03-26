@@ -45,6 +45,7 @@ namespace LandingAPI.Services
 
         #region Методы
 
+        #region Register
         /// <summary>
         /// Регистрирует нового пользователя.
         /// </summary>
@@ -57,6 +58,7 @@ namespace LandingAPI.Services
             var hashedPassword = _passwordHasher.Generate(password);
 
         }
+        #endregion
 
         #endregion
     }

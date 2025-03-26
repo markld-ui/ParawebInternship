@@ -51,6 +51,7 @@ namespace LandingAPI.Repository
 
         #region Методы
 
+        #region EventExistsByIdAsync
         /// <summary>
         /// Проверяет существование события по его идентификатору.
         /// </summary>
@@ -62,7 +63,9 @@ namespace LandingAPI.Repository
         {
             return await _context.Events.AnyAsync(e => e.EventId == id);
         }
+        #endregion
 
+        #region GetEventByIdAsync
         /// <summary>
         /// Получает событие по его идентификатору.
         /// </summary>
@@ -72,11 +75,17 @@ namespace LandingAPI.Repository
         {
             return await _context.Events.FirstOrDefaultAsync(e => e.EventId == id);
         }
+        #endregion
 
+        #region GetEventsAsync
         /// <summary>
-        /// Получает список всех событий, отсортированных по идентификатору.
+        /// Получает список всех событий, отсортированных по указанному полю.
         /// </summary>
-        /// <returns>Коллекция событий.</returns>
+        /// <param name="pageNumber">Номер страницы для получения (по умолчанию 1).</param>
+        /// <param name="pageSize">Количество событий на странице (по умолчанию 10).</param>
+        /// <param name="sortField">Поле, по которому будет производиться сортировка (по умолчанию "EventId").</param>
+        /// <param name="ascending">Определяет порядок сортировки: по возрастанию или убыванию (по умолчанию true).</param>
+        /// <returns>Кортеж, содержащий коллекцию событий и общее количество событий.</returns>
         public async Task<(ICollection<Event> Events, int TotalCount)> GetEventsAsync(
             int pageNumber = 1,
             int pageSize = 10,
@@ -104,7 +113,9 @@ namespace LandingAPI.Repository
 
             return (events, totalCount);
         }
+        #endregion
 
+        #region GetEventsByUserIdAsync
         /// <summary>
         /// Получает список событий, созданных определенным пользователем.
         /// </summary>
@@ -114,7 +125,9 @@ namespace LandingAPI.Repository
         {
             return await _context.Events.Where(e => e.CreatedById == userId).ToListAsync();
         }
+        #endregion
 
+        #region AddEventAsync
         /// <summary>
         /// Добавляет новое событие в базу данных.
         /// </summary>
@@ -124,7 +137,9 @@ namespace LandingAPI.Repository
             await _context.Events.AddAsync(event_);
             await _context.SaveChangesAsync();
         }
+        #endregion
 
+        #region UpdateEventAsync
         /// <summary>
         /// Обновляет существующее событие в базе данных.
         /// </summary>
@@ -134,7 +149,9 @@ namespace LandingAPI.Repository
             _context.Events.Update(event_);
             await _context.SaveChangesAsync();
         }
+        #endregion
 
+        #region DeleteEventAsync
         /// <summary>
         /// Удаляет событие из базы данных.
         /// </summary>
@@ -144,6 +161,8 @@ namespace LandingAPI.Repository
             _context.Events.Remove(event_);
             await _context.SaveChangesAsync();
         }
+        #endregion
+
         #endregion
     }
 

@@ -49,6 +49,7 @@ namespace LandingAPI.Repository
 
         #region Методы
 
+        #region GetRolesAsync
         /// <summary>
         /// Получает список всех ролей.
         /// </summary>
@@ -57,7 +58,9 @@ namespace LandingAPI.Repository
         {
             return await _context.Roles.ToListAsync();
         }
+        #endregion
 
+        #region GetRoleByIdAsync
         /// <summary>
         /// Получает роль по ее идентификатору.
         /// </summary>
@@ -67,7 +70,9 @@ namespace LandingAPI.Repository
         {
             return await _context.Roles.FindAsync(id);
         }
+        #endregion
 
+        #region GetRoleByNameAsync
         /// <summary>
         /// Получает роль по ее названию.
         /// </summary>
@@ -77,7 +82,9 @@ namespace LandingAPI.Repository
         {
             return await _context.Roles.FirstOrDefaultAsync(r => r.Name == name);
         }
+        #endregion
 
+        #region AddRoleAsync
         /// <summary>
         /// Добавляет новую роль в базу данных.
         /// </summary>
@@ -87,7 +94,9 @@ namespace LandingAPI.Repository
             await _context.Roles.AddAsync(role);
             await _context.SaveChangesAsync();
         }
+        #endregion
 
+        #region UpdateRoleAsync
         /// <summary>
         /// Обновляет существующую роль в базе данных.
         /// </summary>
@@ -97,7 +106,9 @@ namespace LandingAPI.Repository
             _context.Roles.Update(role);
             await _context.SaveChangesAsync();
         }
+        #endregion
 
+        #region DeleteRoleAsync
         /// <summary>
         /// Удаляет роль из базы данных.
         /// </summary>
@@ -107,6 +118,7 @@ namespace LandingAPI.Repository
             _context.Roles.Remove(role);
             await _context.SaveChangesAsync();
         }
+        #endregion
 
         #endregion
     }

@@ -29,6 +29,7 @@ namespace LandingAPI.Services.Seeding
     {
         #region Методы
 
+        #region SeedData
         /// <summary>
         /// Заполняет базу данных начальными данными при запуске приложения.
         /// </summary>
@@ -55,6 +56,7 @@ namespace LandingAPI.Services.Seeding
                 }
             }
         }
+        #endregion
 
         #endregion
     }

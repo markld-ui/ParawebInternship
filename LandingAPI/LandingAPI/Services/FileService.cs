@@ -56,6 +56,7 @@ namespace LandingAPI.Services
 
         #region Методы
 
+        #region UploadFileAsync
         /// <summary>
         /// Загружает файл на сервер и сохраняет информацию о нем в базе данных.
         /// </summary>
@@ -83,7 +84,9 @@ namespace LandingAPI.Services
             await _filesRepository.AddFileAsync(fileEntity);
             return fileEntity;
         }
+        #endregion
 
+        #region DeleteFileAsync
         /// <summary>
         /// Удаляет файл с сервера и из базы данных.
         /// </summary>
@@ -106,7 +109,9 @@ namespace LandingAPI.Services
 
             return true;
         }
+        #endregion
 
+        #region GetFileStreamAsync
         /// <summary>
         /// Получает файл по его идентификатору.
         /// </summary>
@@ -120,6 +125,7 @@ namespace LandingAPI.Services
 
             return (file, new FileStream(file.FilePath, FileMode.Open, FileAccess.Read));
         }
+        #endregion
 
         #endregion
     }

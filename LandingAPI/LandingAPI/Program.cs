@@ -1,3 +1,5 @@
+#region Пространства имен
+
 using Microsoft.EntityFrameworkCore;
 using LandingAPI.Data;
 using LandingAPI;
@@ -11,6 +13,10 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using LandingAPI.Services;
 using System.Text.Json.Serialization;
+
+#endregion
+
+#region builder
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -67,6 +73,10 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     });
 
+#endregion
+
+#region app
+
 var app = builder.Build();
 
 app.SeedData();
@@ -86,3 +96,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+#endregion

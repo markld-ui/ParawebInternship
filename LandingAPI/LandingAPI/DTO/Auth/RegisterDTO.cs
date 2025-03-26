@@ -1,23 +1,18 @@
 ﻿#region Заголовок файла
-
 /// <summary>
 /// Файл: RegisterDTO.cs
 /// Класс Data Transfer Object (DTO) для передачи данных, необходимых для регистрации пользователя.
 /// Используется для передачи данных о регистрации (имя пользователя, email и пароль) между слоями приложения.
 /// </summary>
-
 #endregion
 
 #region Пространства имен
-
 using System.ComponentModel.DataAnnotations;
-
 #endregion
 
 namespace LandingAPI.DTO.Auth
 {
     #region Класс RegisterDTO
-
     /// <summary>
     /// Data Transfer Object (DTO) для передачи данных, необходимых для регистрации пользователя.
     /// </summary>
@@ -31,6 +26,7 @@ namespace LandingAPI.DTO.Auth
         [Required(ErrorMessage = "Имя пользователя обязательно")]
         [MinLength(3, ErrorMessage = "Имя пользователя должно содержать минимум 3 символа")]
         [MaxLength(20, ErrorMessage = "Имя пользователя не должно превышать 20 символов")]
+        /// <example>user123</example>
         public string Username { get; set; }
 
         /// <summary>
@@ -38,6 +34,7 @@ namespace LandingAPI.DTO.Auth
         /// </summary> 
         [Required(ErrorMessage = "Почта обязательна")]
         [EmailAddress(ErrorMessage = "Введите корректный адрес электронной почты")]
+        /// <example>user@example.com</example>
         public string Email { get; set; }
 
         /// <summary>
@@ -47,6 +44,7 @@ namespace LandingAPI.DTO.Auth
         [MinLength(8, ErrorMessage = "Пароль должен содержать минимум 8 символов")]
         [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$",
                 ErrorMessage = "Пароль должен содержать цифры, заглавные и строчные буквы")]
+        /// <example>Pa$$w0rd</example>
         public string Password { get; set; }
 
         #endregion

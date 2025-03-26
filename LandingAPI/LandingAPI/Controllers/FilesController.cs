@@ -66,12 +66,50 @@ namespace LandingAPI.Controllers
         /// </summary>
         /// <returns>
         /// Возвращает <see cref="IActionResult"/>:
+        /// - 200 OK с списком файлов в формате <see cref="FileDetailsDTO"/> в случае успешного запроса.
         /// - 400 BadRequest, если модель данных невалидна.
         /// - 404 NotFound, если файлы не найдены.
-        /// - 200 OK с списком файлов в формате <see cref="FileDetailsDTO"/>.
         /// </returns>
+        /// <remarks>
+        /// ### Пример запроса:
+        /// GET /api/files?page=1&size=10&sort=UploadedAt&asc=false
+        /// 
+        /// ### Пример успешного ответа:
+        /// ```json
+        /// {
+        ///   "data": [
+        ///     {
+        ///       "fileId": 1,
+        ///       "fileName": "example.txt",
+        ///       "uploadedAt": "2023-01-01T12:00:00Z",
+        ///       "downloadUrl": "http://example.com/api/files/download/1",
+        ///       "fileSize": 2048
+        ///     },
+        ///     {
+        ///       "fileId": 2,
+        ///       "fileName": "sample.pdf",
+        ///       "uploadedAt": "2023-01-02T12:00:00Z",
+        ///       "downloadUrl": "http://example.com/api/files/download/2",
+        ///       "fileSize": 10240
+        ///     }
+        ///   ],
+        ///   "totalCount": 2,
+        ///   "page": 1,
+        ///   "pageSize": 10
+        /// }
+        /// ```
+        /// 
+        /// ### Пример ошибки (файлы не найдены):
+        /// ```json
+        /// {
+        ///   "error": "Файлы не найдены"
+        /// }
+        /// ```
+        /// </remarks>
         [HttpGet]
         [ProducesResponseType(typeof(PagedResponse<FileDetailsDTO>), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> GetFilesAsync(
             [FromQuery] int page = 1,
             [FromQuery] int size = 10,
@@ -110,12 +148,36 @@ namespace LandingAPI.Controllers
         /// <param name="id">Идентификатор файла.</param>
         /// <returns>
         /// Возвращает <see cref="IActionResult"/>:
+        /// - 200 OK с данными файла в формате <see cref="FileDetailsDTO"/> в случае успешного запроса.
         /// - 404 NotFound, если файл с указанным идентификатором не найден.
         /// - 400 BadRequest, если модель данных невалидна.
-        /// - 200 OK с данными файла в формате <see cref="FileDetailsDTO"/>.
         /// </returns>
+        /// <remarks>
+        /// ### Пример запроса:
+        /// GET /api/files/1
+        /// 
+        /// ### Пример успешного ответа:
+        /// ```json
+        /// {
+        ///   "fileId": 1,
+        ///   "fileName": "example.txt",
+        ///   "uploadedAt": "2023-01-01T12:00:00Z",
+        ///   "downloadUrl": "http://example.com/api/files/download/1",
+        ///   "fileSize": 2048
+        /// }
+        /// ```
+        /// 
+        /// ### Пример ошибки (файл не найден):
+        /// ```json
+        /// {
+        ///   "error": "Файл не найден"
+        /// }
+        /// ```
+        /// </remarks>
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(FileDetailsDTO), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> GetFileAsync(int id)
         {
             var file = await _filesRepository.GetFileByIdAsync(id);
@@ -142,13 +204,43 @@ namespace LandingAPI.Controllers
         /// <param name="newsId">Идентификатор новости.</param>
         /// <returns>
         /// Возвращает <see cref="IActionResult"/>:
-        /// - 400 BadRequest, если модель данных невалидна.
+        /// - 200 OK с данными файла в формате <see cref="FilesDTO"/> в случае успешного запроса.
         /// - 404 NotFound, если файл не найден.
-        /// - 200 OK с данными файла в формате <see cref="FilesDTO"/>.
+        /// - 400 BadRequest, если модель данных невалидна.
         /// </returns>
+        /// <remarks>
+        /// ### Пример запроса:
+        /// GET /api/files/news/1
+        /// 
+        /// ### Пример успешного ответа:
+        /// ```json
+        /// {
+        ///   "fileId": 1,
+        ///   "fileName": "news_image.jpg",
+        ///   "uploadedAt": "2023-01-01T12:00:00Z",
+        ///   "downloadUrl": "http://example.com/api/files/download/1",
+        ///   "fileSize": 5120
+        /// }
+        /// ```
+        /// 
+        /// ### Пример ошибки (файл не найден):
+        /// ```json
+        /// {
+        ///   "error": "Файл не найден"
+        /// }
+        /// ```
+        /// 
+        /// ### Пример ошибки (невалидная модель):
+        /// ```json
+        /// {
+        ///   "error": "Некорректные данные запроса"
+        /// }
+        /// ```
+        /// </remarks>
         [HttpGet("news/{newsId}")]
         [ProducesResponseType(typeof(IEnumerable<FilesDTO>), 200)]
         [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> GetFileByNewsId(int newsId)
         {
             if (!ModelState.IsValid)
@@ -175,13 +267,43 @@ namespace LandingAPI.Controllers
         /// <param name="eventId">Идентификатор события.</param>
         /// <returns>
         /// Возвращает <see cref="IActionResult"/>:
-        /// - 400 BadRequest, если модель данных невалидна.
+        /// - 200 OK с данными файла в формате <see cref="FilesDTO"/> в случае успешного запроса.
         /// - 404 NotFound, если файл не найден.
-        /// - 200 OK с данными файла в формате <see cref="FilesDTO"/>.
+        /// - 400 BadRequest, если модель данных невалидна.
         /// </returns>
+        /// <remarks>
+        /// ### Пример запроса:
+        /// GET /api/files/events/1
+        /// 
+        /// ### Пример успешного ответа:
+        /// ```json
+        /// {
+        ///   "fileId": 1,
+        ///   "fileName": "event_image.png",
+        ///   "uploadedAt": "2023-01-01T12:00:00Z",
+        ///   "downloadUrl": "http://example.com/api/files/download/1",
+        ///   "fileSize": 10240
+        /// }
+        /// ```
+        /// 
+        /// ### Пример ошибки (файл не найден):
+        /// ```json
+        /// {
+        ///   "error": "Файл не найден"
+        /// }
+        /// ```
+        /// 
+        /// ### Пример ошибки (невалидная модель):
+        /// ```json
+        /// {
+        ///   "error": "Некорректные данные запроса"
+        /// }
+        /// ```
+        /// </remarks>
         [HttpGet("events/{eventId}")]
         [ProducesResponseType(typeof(IEnumerable<FilesDTO>), 200)]
         [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> GetFileByEventId(int eventId)
         {
             if (!ModelState.IsValid)
@@ -201,15 +323,53 @@ namespace LandingAPI.Controllers
         #endregion
 
         #region UploadFile
+
         /// <summary>
         /// Загружает файл на сервер.
         /// </summary>
         /// <param name="dto">Файл для загрузки.</param>
         /// <returns>
         /// Возвращает <see cref="IActionResult"/>:
+        /// - 200 OK с данными загруженного файла в формате <see cref="FileDetailsDTO"/>.
         /// - 400 BadRequest, если файл не был предоставлен.
-        /// - 200 OK с данными загруженного файла.
+        /// - 500 InternalServerError, если произошла ошибка при загрузке файла.
         /// </returns>
+        /// <remarks>
+        /// ### Пример запроса:
+        /// POST /api/files/upload
+        /// 
+        /// ### Пример тела запроса:
+        /// ```json
+        /// {
+        ///   "file": "файл в формате multipart/form-data"
+        /// }
+        /// ```
+        /// 
+        /// ### Пример успешного ответа:
+        /// ```json
+        /// {
+        ///   "fileId": 1,
+        ///   "fileName": "uploaded_file.png",
+        ///   "uploadedAt": "2023-01-01T12:00:00Z",
+        ///   "downloadUrl": "http://example.com/api/files/download/1",
+        ///   "fileSize": 20480
+        /// }
+        /// ```
+        /// 
+        /// ### Пример ошибки (файл не был предоставлен):
+        /// ```json
+        /// {
+        ///   "error": "Файл не был предоставлен"
+        /// }
+        /// ```
+        /// 
+        /// ### Пример ошибки (внутренняя ошибка сервера):
+        /// ```json
+        /// {
+        ///   "error": "Ошибка при загрузке файла: [описание ошибки]"
+        /// }
+        /// ```
+        /// </remarks>
         [HttpPost("upload")]
         [ProducesResponseType(typeof(FileDetailsDTO), 200)]
         public async Task<IActionResult> UploadFile([FromForm] FileUploadDTO dto)
@@ -238,15 +398,34 @@ namespace LandingAPI.Controllers
         #endregion
 
         #region DownloadFile
+
         /// <summary>
         /// Скачивает файл по его идентификатору.
         /// </summary>
         /// <param name="id">Идентификатор файла.</param>
         /// <returns>
         /// Возвращает <see cref="IActionResult"/>:
+        /// - 200 OK с содержимым файла в виде потока.
         /// - 404 NotFound, если файл не найден.
-        /// - 200 OK с содержимым файла.
         /// </returns>
+        /// <remarks>
+        /// ### Пример запроса:
+        /// GET /api/files/download/1
+        /// 
+        /// ### Пример успешного ответа:
+        /// - **HTTP/1.1 200 OK**
+        /// - **Content-Disposition**: attachment; filename="example_file.png"
+        /// - **Content-Type**: application/octet-stream
+        /// 
+        /// (Содержимое файла будет возвращено в теле ответа.)
+        /// 
+        /// ### Пример ошибки (файл не найден):
+        /// ```json
+        /// {
+        ///   "error": "Файл не найден"
+        /// }
+        /// ```
+        /// </remarks>
         [HttpGet("download/{id}")]
         public async Task<IActionResult> DownloadFile(int id)
         {
@@ -260,15 +439,32 @@ namespace LandingAPI.Controllers
         #endregion
 
         #region DeleteFile
+
         /// <summary>
         /// Удаляет файл по его идентификатору.
         /// </summary>
         /// <param name="id">Идентификатор файла.</param>
         /// <returns>
         /// Возвращает <see cref="IActionResult"/>:
-        /// - 404 NotFound, если файл не найден.
         /// - 204 NoContent, если файл успешно удален.
+        /// - 404 NotFound, если файл не найден.
         /// </returns>
+        /// <remarks>
+        /// ### Пример запроса:
+        /// DELETE /api/files/{id}
+        /// 
+        /// ### Пример успешного ответа:
+        /// - **HTTP/1.1 204 No Content**
+        /// 
+        /// (Тело ответа пустое.)
+        /// 
+        /// ### Пример ошибки (файл не найден):
+        /// ```json
+        /// {
+        ///   "error": "Файл не найден"
+        /// }
+        /// ```
+        /// </remarks>
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteFile(int id)
         {

@@ -1,17 +1,12 @@
 ﻿#region Заголовок файла
-
-
+// Файл: LoginDTO.cs
+// Класс Data Transfer Object (DTO) для передачи данных, необходимых для аутентификации пользователя.
+// Используется для передачи данных о входе в систему (email и пароль) между слоями приложения.
 #endregion
 
-/// <summary>
-/// Файл: LoginDTO.cs
-/// Класс Data Transfer Object (DTO) для передачи данных, необходимых для аутентификации пользователя.
-/// Используется для передачи данных о входе в систему (email и пароль) между слоями приложения.
-/// </summary>
 namespace LandingAPI.DTO.Auth
 {
     #region Класс LoginDTO
-
     /// <summary>
     /// Data Transfer Object (DTO) для передачи данных, необходимых для аутентификации пользователя.
     /// </summary>
@@ -22,15 +17,16 @@ namespace LandingAPI.DTO.Auth
         /// <summary>
         /// Электронная почта пользователя. Используется для идентификации пользователя.
         /// </summary>
+        /// <example>user@example.com</example>
         public string Email { get; set; }
 
         /// <summary>
         /// Пароль пользователя. Используется для проверки подлинности.
         /// </summary>
+        /// <example>Pa$$w0rd</example>
         public string Password { get; set; }
 
         #endregion
     }
-
     #endregion
 }

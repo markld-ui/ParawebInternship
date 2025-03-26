@@ -50,6 +50,7 @@ namespace LandingAPI.Services.Auth
 
         #region Методы
 
+        #region GenerateToken
         /// <summary>
         /// Генерирует JWT-токен для пользователя.
         /// </summary>
@@ -87,7 +88,9 @@ namespace LandingAPI.Services.Auth
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
+        #endregion
 
+        #region GenerateRefreshToken
         /// <summary>
         /// Генерирует refresh-токен.
         /// </summary>
@@ -101,7 +104,9 @@ namespace LandingAPI.Services.Auth
                 return Convert.ToBase64String(randomNumber);
             }
         }
+        #endregion
 
+        #region GetPrincipalFromExpiredToken
         /// <summary>
         /// Получает данные пользователя из истекшего токена.
         /// </summary>
@@ -133,6 +138,7 @@ namespace LandingAPI.Services.Auth
 
             return principal;
         }
+        #endregion
 
         #endregion
     }

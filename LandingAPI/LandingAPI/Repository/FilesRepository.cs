@@ -50,6 +50,8 @@ namespace LandingAPI.Repository
 
         #region Методы
 
+        #region FileExistsByIdAsync
+
         /// <summary>
         /// Проверяет существование файла по его идентификатору.
         /// </summary>
@@ -61,6 +63,9 @@ namespace LandingAPI.Repository
         {
             return await _context.Files.AnyAsync(f => f.FileId == id);
         }
+        #endregion
+
+        #region FileExistsByNameAsync
 
         /// <summary>
         /// Проверяет существование файла по его имени.
@@ -73,6 +78,9 @@ namespace LandingAPI.Repository
         {
             return await _context.Files.AnyAsync(f => f.FileName == name);
         }
+        #endregion
+
+        #region GetFileByIdAsync
 
         /// <summary>
         /// Получает файл по его идентификатору.
@@ -83,11 +91,17 @@ namespace LandingAPI.Repository
         {
             return await _context.Files.Where(f => f.FileId == id).FirstOrDefaultAsync();
         }
+        #endregion
 
+        #region GetFilesAsync
         /// <summary>
-        /// Получает список всех файлов, отсортированных по идентификатору.
+        /// Получает список всех файлов, отсортированных по указанному полю.
         /// </summary>
-        /// <returns>Коллекция файлов.</returns>
+        /// <param name="pageNumber">Номер страницы для получения (по умолчанию 1).</param>
+        /// <param name="pageSize">Количество файлов на странице (по умолчанию 10).</param>
+        /// <param name="sortField">Поле, по которому будет производиться сортировка (по умолчанию "UploadedAt").</param>
+        /// <param name="ascending">Определяет порядок сортировки: по возрастанию или убыванию (по умолчанию false).</param>
+        /// <returns>Кортеж, содержащий коллекцию файлов и общее количество файлов.</returns>
         public async Task<(ICollection<Files> Files, int TotalCount)> GetFilesAsync(
             int pageNumber = 1,
             int pageSize = 10,
@@ -112,21 +126,36 @@ namespace LandingAPI.Repository
 
             return (files, totalCount);
         }
+        #endregion
 
+        #region AddFileAsync
+
+        /// <summary>
+        /// Добавляет файл в базу данных асинхронно.
+        /// </summary>
+        /// <param name="file">Объект файла, который нужно добавить.</param>
         public async Task AddFileAsync(Files file)
         {
             await _context.Files.AddAsync(file);
             await _context.SaveChangesAsync();
         }
+        #endregion
 
+        #region DeleteFileAsync
+        /// <summary>
+        /// Удаляет файл из базы данных асинхронно.
+        /// </summary>
+        /// <param name="file">Объект файла, который нужно удалить.</param>
         public async Task DeleteFileAsync(Files file)
         {
             _context.Files.Remove(file);
             await _context.SaveChangesAsync();
         }
+        #endregion
 
         #region Методы для получения файлов, связанных с новостями и событиями
 
+        #region GetFileByNewsIdAsync
         /// <summary>
         /// Получает файл, связанный с определенной новостью.
         /// </summary>
@@ -139,7 +168,9 @@ namespace LandingAPI.Repository
                 .Select(n => n.File)
                 .FirstOrDefaultAsync();
         }
+        #endregion
 
+        #region GetFileByEventIdAsync
         /// <summary>
         /// Получает файл, связанный с определенным событием.
         /// </summary>
@@ -152,6 +183,7 @@ namespace LandingAPI.Repository
                 .Select(e => e.File)
                 .FirstOrDefaultAsync();
         }
+        #endregion
 
         #endregion
 

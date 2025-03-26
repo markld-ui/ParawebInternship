@@ -54,6 +54,8 @@ namespace LandingAPI.Controllers
         /// </summary>
         /// <param name="eventRepository">Репозиторий для работы с событиями.</param>
         /// <param name="mapper">Объект для маппинга данных между моделями и DTO.</param>
+        /// <param name="filesRepository">Репозиторий для работы с файлами.</param>
+        /// <param name="fileService">Сервис для работы с файлами</param>
         public EventsController(IEventRepository eventRepository, IMapper mapper, IFilesRepository filesRepository, FileService fileService)
         {
             _eventRepository = eventRepository;
@@ -69,16 +71,30 @@ namespace LandingAPI.Controllers
         #region GetEventsAsync
 
         /// <summary>
-        /// Получает список всех событий.
+        /// Получает список событий с пагинацией и сортировкой
         /// </summary>
-        /// <returns>
-        /// Возвращает <see cref="IActionResult"/>:
-        /// - 400 BadRequest, если модель данных невалидна.
-        /// - 404 NotFound, если события не найдены.
-        /// - 200 OK с списком событий в формате <see cref="EventShortDTO"/>.
-        /// </returns>
+        /// <remarks>
+        /// ### Параметры запроса:
+        /// - **page** (необязательный) - номер страницы (по умолчанию 1)
+        /// - **size** (необязательный) - количество элементов на странице (по умолчанию 10)
+        /// - **sort** (необязательный) - поле для сортировки (доступные значения: "EventId", "Title", "StartDate", "EndDate") (по умолчанию "StartDate")
+        /// - **asc** (необязательный) - направление сортировки (true - по возрастанию, false - по убыванию) (по умолчанию true)
+        /// 
+        /// ### Пример запроса:
+        /// GET /api/Events?page=2&size=5&sort=Title&asc=false
+        /// 
+        /// ### Возможные коды ответа:
+        /// - 200 - Успешный запрос, возвращает список событий
+        /// - 400 - Неверные параметры запроса
+        /// - 404 - События не найдены
+        /// </remarks>
+        /// <response code="200">Возвращает пагинированный список событий</response>
+        /// <response code="400">Если параметры запроса невалидны</response>
+        /// <response code="404">Если события не найдены</response>
         [HttpGet]
         [ProducesResponseType(typeof(PagedResponse<EventShortDTO>), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> GetEventsAsync(
             [FromQuery] int page = 1,
             [FromQuery] int size = 10,
@@ -114,17 +130,50 @@ namespace LandingAPI.Controllers
         #region GetEventByIdAsync
 
         /// <summary>
-        /// Получает событие по его идентификатору.
+        /// Получает детальную информацию о событии по его идентификатору
         /// </summary>
-        /// <param name="id">Идентификатор события.</param>
-        /// <returns>
-        /// Возвращает <see cref="IActionResult"/>:
-        /// - 404 NotFound, если событие с указанным идентификатором не найдено.
-        /// - 400 BadRequest, если модель данных невалидна.
-        /// - 200 OK с данными события в формате <see cref="EventDetailsDTO"/>.
-        /// </returns>
+        /// <remarks>
+        /// ### Параметры:
+        /// - **id** (обязательный) - уникальный идентификатор события
+        /// 
+        /// ### Пример запроса:
+        /// GET /api/Events/5
+        /// 
+        /// ### Возможные коды ответа:
+        /// - 200 - Успешный запрос, возвращает детали события
+        /// - 400 - Неверный формат идентификатора
+        /// - 404 - Событие с указанным ID не найдено
+        /// 
+        /// ### Пример ответа:
+        /// ```json
+        /// {
+        ///   "eventId": 5,
+        ///   "title": "Техническая конференция",
+        ///   "description": "Ежегодная конференция для разработчиков",
+        ///   "startDate": "2023-12-01T09:00:00",
+        ///   "endDate": "2023-12-03T18:00:00",
+        ///   "location": "Москва, Крокус Сити Холл",
+        ///   "createdAt": "2023-11-15T10:00:00",
+        ///   "createdBy": {
+        ///     "userId": 1,
+        ///     "userName": "admin"
+        ///   },
+        ///   "file": {
+        ///     "fileId": 12,
+        ///     "fileName": "agenda.pdf",
+        ///     "downloadUrl": "https://api.example.com/api/Files/download/12"
+        ///   }
+        /// }
+        /// ```
+        /// </remarks>
+        /// <param name="id">Идентификатор события (целое число больше 0)</param>
+        /// <response code="200">Возвращает детальную информацию о событии</response>
+        /// <response code="400">Если идентификатор невалиден</response>
+        /// <response code="404">Если событие не найдено</response>
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(EventDetailsDTO), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> GetEvent(int id)
         {
             var event_ = await _eventRepository.GetEventByIdAsync(id);
@@ -161,16 +210,48 @@ namespace LandingAPI.Controllers
         /// <summary>
         /// Получает список событий, связанных с определенным пользователем.
         /// </summary>
-        /// <param name="userId">Идентификатор пользователя.</param>
-        /// <returns>
-        /// Возвращает <see cref="IActionResult"/>:
-        /// - 400 BadRequest, если модель данных невалидна.
-        /// - 404 NotFound, если события не найдены.
-        /// - 200 OK с списком событий в формате <see cref="EventDTO"/>.
-        /// </returns>
+        /// <remarks>
+        /// ### Параметры:
+        /// - **userId** (обязательный) - уникальный идентификатор пользователя
+        /// 
+        /// ### Пример запроса:
+        /// GET /api/Events/search?userId=1
+        /// 
+        /// ### Возможные коды ответа:
+        /// - 200 - Успешный запрос, возвращает список событий
+        /// - 400 - Неверный формат данных или отсутствует обязательный параметр
+        /// - 404 - События для указанного пользователя не найдены
+        /// 
+        /// ### Пример ответа:
+        /// ```json
+        /// [
+        ///   {
+        ///     "eventId": 5,
+        ///     "title": "Техническая конференция",
+        ///     "description": "Ежегодная конференция для разработчиков",
+        ///     "startDate": "2023-12-01T09:00:00",
+        ///     "endDate": "2023-12-03T18:00:00",
+        ///     "location": "Москва, Крокус Сити Холл"
+        ///   },
+        ///   {
+        ///     "eventId": 6,
+        ///     "title": "Вебинар по искусственному интеллекту",
+        ///     "description": "Обсуждение последних трендов в AI",
+        ///     "startDate": "2023-11-20T15:00:00",
+        ///     "endDate": "2023-11-20T16:30:00",
+        ///     "location": "Онлайн"
+        ///   }
+        /// ]
+        /// ```
+        /// </remarks>
+        /// <param name="userId">Идентификатор пользователя (целое число больше 0)</param>
+        /// <response code="200">Возвращает список событий, связанных с пользователем</response>
+        /// <response code="400">Если модель данных невалидна или отсутствует параметр userId</response>
+        /// <response code="404">Если события не найдены для указанного пользователя</response>
         [HttpGet("search")]
         [ProducesResponseType(typeof(IEnumerable<EventDTO>), 200)]
         [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> GetEventsByUserIdAsync(int userId)
         {
             if (!ModelState.IsValid)
@@ -194,11 +275,46 @@ namespace LandingAPI.Controllers
         /// <param name="model">Модель данных для создания события, содержащая название, описание, даты начала и окончания, местоположение и идентификатор файла.</param>
         /// <returns>
         /// Возвращает <see cref="IActionResult"/>:
+        /// - 200 OK с данными созданного события в формате <see cref="EventDetailsDTO"/>.
         /// - 400 BadRequest, если модель данных невалидна.
-        /// - 200 OK с данными созданного события.
         /// </returns>
         /// <remarks>
         /// Доступно только для пользователей с ролью "Admin".
+        /// 
+        /// ### Пример запроса:
+        /// POST /api/Events
+        /// ```json
+        /// {
+        ///   "title": "Новая конференция",
+        ///   "description": "Описание новой конференции",
+        ///   "startDate": "2023-12-10T09:00:00",
+        ///   "endDate": "2023-12-12T18:00:00",
+        ///   "location": "Санкт-Петербург, Экспофорум",
+        ///   "fileId": 10
+        /// }
+        /// ```
+        /// 
+        /// ### Пример ответа:
+        /// ```json
+        /// {
+        ///   "eventId": 7,
+        ///   "title": "Новая конференция",
+        ///   "description": "Описание новой конференции",
+        ///   "startDate": "2023-12-10T09:00:00",
+        ///   "endDate": "2023-12-12T18:00:00",
+        ///   "location": "Санкт-Петербург, Экспофорум",
+        ///   "createdAt": "2023-11-15T10:00:00",
+        ///   "createdBy": {
+        ///     "userId": 1,
+        ///     "userName": "admin"
+        ///   },
+        ///   "file": {
+        ///     "fileId": 10,
+        ///     "fileName": "agenda.pdf",
+        ///     "downloadUrl": "https://api.example.com/api/Files/download/10"
+        ///   }
+        /// }
+        /// ```
         /// </remarks>
         [Authorize(Roles = "Admin")]
         [HttpPost]
@@ -247,12 +363,48 @@ namespace LandingAPI.Controllers
         /// <param name="model">Модель данных для обновления события, содержащая новое название, описание, даты начала и окончания, местоположение и идентификатор файла.</param>
         /// <returns>
         /// Возвращает <see cref="IActionResult"/>:
+        /// - 200 OK с данными обновленного события в формате <see cref="EventDetailsDTO"/>.
         /// - 400 BadRequest, если модель данных невалидна.
         /// - 404 NotFound, если событие с указанным идентификатором не найдено.
-        /// - 200 OK с данными обновленного события.
         /// </returns>
         /// <remarks>
         /// Доступно только для пользователей с ролью "Admin".
+        /// 
+        /// ### Пример запроса:
+        /// PUT /api/Events/1
+        /// ```json
+        /// {
+        ///   "title": "Обновленная конференция",
+        ///   "description": "Обновленное описание конференции",
+        ///   "startDate": "2023-12-11T09:00:00",
+        ///   "endDate": "2023-12-13T18:00:00",
+        ///   "location": "Санкт-Петербург, Невский проспект",
+        ///   "fileId": 12,
+        ///   "removeFile": false
+        /// }
+        /// ```
+        /// 
+        /// ### Пример ответа:
+        /// ```json
+        /// {
+        ///   "eventId": 1,
+        ///   "title": "Обновленная конференция",
+        ///   "description": "Обновленное описание конференции",
+        ///   "startDate": "2023-12-11T09:00:00",
+        ///   "endDate": "2023-12-13T18:00:00",
+        ///   "location": "Санкт-Петербург, Невский проспект",
+        ///   "createdAt": "2023-11-15T10:00:00",
+        ///   "createdBy": {
+        ///     "userId": 1,
+        ///     "userName": "admin"
+        ///   },
+        ///   "file": {
+        ///     "fileId": 12,
+        ///     "fileName": "updated_agenda.pdf",
+        ///     "downloadUrl": "https://api.example.com/api/Files/download/12"
+        ///   }
+        /// }
+        /// ```
         /// </remarks>
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
@@ -300,11 +452,19 @@ namespace LandingAPI.Controllers
         /// <param name="id">Идентификатор события, которое нужно удалить.</param>
         /// <returns>
         /// Возвращает <see cref="IActionResult"/>:
-        /// - 404 NotFound, если событие с указанным идентификатором не найдено.
         /// - 204 NoContent, если событие успешно удалено.
+        /// - 404 NotFound, если событие с указанным идентификатором не найдено.
         /// </returns>
         /// <remarks>
         /// Доступно только для пользователей с ролью "Admin".
+        /// 
+        /// ### Пример запроса:
+        /// DELETE /api/Events/1
+        /// 
+        /// ### Пример ответа:
+        /// - 204 NoContent (если событие успешно удалено)
+        /// 
+        /// - 404 NotFound (если событие не найдено)
         /// </remarks>
         [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
@@ -323,7 +483,7 @@ namespace LandingAPI.Controllers
         #region MapToDetailsDTO
 
         /// <summary>
-        /// Преобразует объект <see cref="Event "/> в объект <see cref="EventDetailsDTO"/>.
+        /// Преобразует объект <see cref="Event"/> в объект <see cref="EventDetailsDTO"/>.
         /// </summary>
         /// <param name="event_">Объект мероприятия, который нужно преобразовать.</param>
         /// <returns>
@@ -331,6 +491,28 @@ namespace LandingAPI.Controllers
         /// </returns>
         /// <remarks>
         /// Метод создает DTO (Data Transfer Object) для передачи данных о мероприятии.
+        /// 
+        /// ### Пример возвращаемого объекта:
+        /// ```json
+        /// {
+        ///   "eventId": 1,
+        ///   "title": "Конференция 2023",
+        ///   "description": "Описание конференции 2023 года.",
+        ///   "startDate": "2023-12-01T10:00:00",
+        ///   "endDate": "2023-12-01T17:00:00",
+        ///   "location": "Москва, Кремль",
+        ///   "createdAt": "2023-01-01T12:00:00",
+        ///   "createdBy": {
+        ///     "userId": 1,
+        ///     "userName": "admin"
+        ///   },
+        ///   "file": {
+        ///     "fileId": 10,
+        ///     "fileName": "agenda.pdf",
+        ///     "downloadUrl": "https://api.example.com/api/Files/download/10"
+        ///   }
+        /// }
+        /// ```
         /// </remarks>
         private async Task<EventDetailsDTO> MapToDetailsDTO(Event event_)
         {

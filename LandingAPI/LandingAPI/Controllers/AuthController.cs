@@ -74,9 +74,36 @@ namespace LandingAPI.Controllers
         /// <param name="model">Модель данных для регистрации, содержащая имя пользователя, email и пароль.</param>
         /// <returns>
         /// Возвращает <see cref="IActionResult"/>:
-        /// - 400 BadRequest, если модель данных невалидна.
-        /// - 200 OK с сообщением об успешной регистрации.
+        /// - 200 OK с токеном и refresh-токеном при успешной регистрации.
+        /// - 400 BadRequest, если модель данных невалидна или пользователь с таким именем/email уже существует.
+        /// - 500 InternalServerError, если произошла ошибка при регистрации.
         /// </returns>
+        /// <remarks>
+        /// ### Пример запроса:
+        /// POST /api/users/register
+        /// ```json
+        /// {
+        ///   "username": "newuser",
+        ///   "email": "newuser@example.com",
+        ///   "password": "securePassword123"
+        /// }
+        /// ```
+        /// 
+        /// ### Пример успешного ответа:
+        /// ```json
+        /// {
+        ///   "token": "accessTokenString",
+        ///   "refreshToken": "refreshTokenString"
+        /// }
+        /// ```
+        /// 
+        /// ### Пример ошибки:
+        /// ```json
+        /// {
+        ///   "error": "Пользователь с таким email уже существует."
+        /// }
+        /// ```
+        /// </remarks>
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDTO model)
         {
@@ -130,11 +157,36 @@ namespace LandingAPI.Controllers
         /// <param name="model">Модель данных для входа, содержащая email и пароль.</param>
         /// <returns>
         /// Возвращает <see cref="IActionResult"/>:
-        /// - 500 Internal Server Error, если произошла ошибка в запросе
+        /// - 200 OK с JWT-токеном в случае успешной аутентификации.
         /// - 400 BadRequest, если модель данных невалидна.
         /// - 401 Unauthorized, если пользователь не найден или пароль неверен.
-        /// - 200 OK с JWT-токеном в случае успешной аутентификации.
+        /// - 500 Internal Server Error, если произошла ошибка в запросе.
         /// </returns>
+        /// <remarks>
+        /// ### Пример запроса:
+        /// POST /api/users/login
+        /// ```json
+        /// {
+        ///   "email": "user@example.com",
+        ///   "password": "securePassword123"
+        /// }
+        /// ```
+        /// 
+        /// ### Пример успешного ответа:
+        /// ```json
+        /// {
+        ///   "token": "jwtAccessTokenString",
+        ///   "refreshToken": "refreshTokenString"
+        /// }
+        /// ```
+        /// 
+        /// ### Пример ошибки:
+        /// ```json
+        /// {
+        ///   "error": "Неверный email или пароль."
+        /// }
+        /// ```
+        /// </remarks>
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDTO model)
         {
@@ -173,9 +225,34 @@ namespace LandingAPI.Controllers
         /// <param name="model">Модель данных, содержащая текущий JWT-токен и refresh token.</param>
         /// <returns>
         /// Возвращает <see cref="IActionResult"/>:
-        /// - 400 BadRequest, если токен невалиден или срок действия refresh token истек.
         /// - 200 OK с новым JWT-токеном и refresh token в случае успешного обновления.
+        /// - 400 BadRequest, если токен невалиден или срок действия refresh token истек.
         /// </returns>
+        /// <remarks>
+        /// ### Пример запроса:
+        /// POST /api/users/refresh
+        /// ```json
+        /// {
+        ///   "token": "expiredJwtTokenString",
+        ///   "refreshToken": "currentRefreshTokenString"
+        /// }
+        /// ```
+        /// 
+        /// ### Пример успешного ответа:
+        /// ```json
+        /// {
+        ///   "token": "newJwtTokenString",
+        ///   "refreshToken": "newRefreshTokenString"
+        /// }
+        /// ```
+        /// 
+        /// ### Пример ошибки:
+        /// ```json
+        /// {
+        ///   "error": "Invalid token"
+        /// }
+        /// ```
+        /// </remarks>
         [HttpPost("refresh")]
         public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenDTO model)
         {

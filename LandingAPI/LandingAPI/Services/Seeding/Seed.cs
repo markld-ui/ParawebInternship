@@ -49,6 +49,7 @@ namespace LandingAPI.Services.Seeding
 
         #region Методы
 
+        #region SeedDataContext
         /// <summary>
         /// Заполняет базу данных начальными данными, если таблицы пусты.
         /// </summary>
@@ -247,6 +248,7 @@ namespace LandingAPI.Services.Seeding
 
             #endregion
         }
+        #endregion
 
         #endregion
     }

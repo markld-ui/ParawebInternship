@@ -49,6 +49,7 @@ namespace LandingAPI.Controllers
         /// </summary>
         /// <param name="userRepository">Репозиторий для работы с пользователями.</param>
         /// <param name="mapper">Объект для маппинга данных между моделями и DTO.</param>
+        /// <param name="passwordHasher">Объект для работы с паролем</param>
         public UsersController(IUserRepository userRepository, IMapper mapper, IPasswordHasher passwordHasher)
         {
             _userRepository = userRepository;
@@ -67,10 +68,56 @@ namespace LandingAPI.Controllers
         /// </summary>
         /// <returns>
         /// Возвращает <see cref="IActionResult"/>:
-        /// - 400 BadRequest, если модель данных невалидна.
+        /// - 200 OK с списком пользователей в формате <see cref="User ShortDTO"/>.
         /// - 404 NotFound, если пользователи не найдены.
-        /// - 200 OK с списком пользователей в формате <see cref="UserShortDTO"/>.
+        /// - 400 BadRequest, если модель данных невалидна.
         /// </returns>
+        /// <remarks>
+        /// Метод возвращает список пользователей с поддержкой пагинации и сортировки.
+        /// 
+        /// ### Параметры:
+        /// - **page**: Номер страницы для пагинации (по умолчанию 1).
+        /// - **size**: Количество пользователей на странице (по умолчанию 10).
+        /// - **sort**: Поле для сортировки (по умолчанию "User Id").
+        /// - **asc**: Указывает, будет ли сортировка по возрастанию (по умолчанию true).
+        /// 
+        /// ### Пример запроса:
+        /// GET /api/users?page=1&size=10&sort=Username&asc=true
+        /// 
+        /// ### Пример успешного ответа:
+        /// - **HTTP/1.1 200 OK**
+        /// ```json
+        /// {
+        ///   "data": [
+        ///     {
+        ///       "userId": 1,
+        ///       "username": "user1",
+        ///       "email": "user1@example.com",
+        ///       "createdAt": "2023-01-01T12:00:00Z",
+        ///       "mainRole": "Администратор"
+        ///     },
+        ///     {
+        ///       "userId": 2,
+        ///       "username": "user2",
+        ///       "email": "user2@example.com",
+        ///       "createdAt": "2023-01-02T12:00:00Z",
+        ///       "mainRole": "Пользователь"
+        ///     }
+        ///   ],
+        ///   "totalCount": 50,
+        ///   "page": 1,
+        ///   "pageSize": 10
+        /// }
+        /// ```
+        /// 
+        /// ### Пример ошибки (пользователи не найдены):
+        /// - **HTTP/1.1 404 Not Found**
+        /// ```json
+        /// {
+        ///   "error": "Пользователи не найдены"
+        /// }
+        /// ```
+        /// </remarks>
         [HttpGet]
         [ProducesResponseType(typeof(PagedResponse<UserShortDTO>), 200)]
         public async Task<IActionResult> GetUsersAsync(
@@ -111,10 +158,45 @@ namespace LandingAPI.Controllers
         /// <param name="id">Идентификатор пользователя.</param>
         /// <returns>
         /// Возвращает <see cref="IActionResult"/>:
+        /// - 200 OK с данными пользователя в формате <see cref="User DetailsDTO"/>.
         /// - 404 NotFound, если пользователь с указанным идентификатором не найден.
         /// - 400 BadRequest, если модель данных невалидна.
-        /// - 200 OK с данными пользователя в формате <see cref="UserDetailsDTO"/>.
         /// </returns>
+        /// <remarks>
+        /// Метод возвращает детали пользователя по его уникальному идентификатору.
+        /// 
+        /// ### Пример запроса:
+        /// GET /api/users/1
+        /// 
+        /// ### Пример успешного ответа:
+        /// - **HTTP/1.1 200 OK**
+        /// ```json
+        /// {
+        ///   "userId": 1,
+        ///   "username": "user1",
+        ///   "email": "user1@example.com",
+        ///   "createdAt": "2023-01-01T12:00:00Z",
+        ///   "roles": [
+        ///     {
+        ///       "roleId": 1,
+        ///       "name": "Администратор"
+        ///     },
+        ///     {
+        ///       "roleId": 2,
+        ///       "name": "Пользователь"
+        ///     }
+        ///   ]
+        /// }
+        /// ```
+        /// 
+        /// ### Пример ошибки (пользователь не найден):
+        /// - **HTTP/1.1 404 Not Found**
+        /// ```json
+        /// {
+        ///   "error": "Пользователь не найден"
+        /// }
+        /// ```
+        /// </remarks>
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(UserDetailsDTO), 200)]
         public async Task<IActionResult> GetUserAsync(int id)
@@ -147,10 +229,49 @@ namespace LandingAPI.Controllers
         /// <param name="username">Имя пользователя.</param>
         /// <returns>
         /// Возвращает <see cref="IActionResult"/>:
+        /// - 200 OK с данными пользователя в формате <see cref="User DTO"/>.
         /// - 404 NotFound, если пользователь с указанным именем не найден.
         /// - 400 BadRequest, если модель данных невалидна.
-        /// - 200 OK с данными пользователя в формате <see cref="UserDTO"/>.
         /// </returns>
+        /// <remarks>
+        /// Метод возвращает информацию о пользователе по его имени.
+        /// 
+        /// ### Пример запроса:
+        /// GET /api/users/search?username=user1
+        /// 
+        /// ### Пример успешного ответа:
+        /// - **HTTP/1.1 200 OK**
+        /// ```json
+        /// {
+        ///   "userId": 1,
+        ///   "username": "user1",
+        ///   "email": "user1@example.com",
+        ///   "createdAt": "2023-01-01T12:00:00Z",
+        ///   "roles": [
+        ///     {
+        ///       "roleId": 1,
+        ///       "name": "Администратор"
+        ///     }
+        ///   ]
+        /// }
+        /// ```
+        /// 
+        /// ### Пример ошибки (пользователь не найден):
+        /// - **HTTP/1.1 404 Not Found**
+        /// ```json
+        /// {
+        ///   "error": "Пользователь не найден"
+        /// }
+        /// ```
+        /// 
+        /// ### Пример ошибки (невалидная модель):
+        /// - **HTTP/1.1 400 Bad Request**
+        /// ```json
+        /// {
+        ///   "error": "Некорректный запрос"
+        /// }
+        /// ```
+        /// </remarks>
         [HttpGet("search")]
         [ProducesResponseType(typeof(IEnumerable<UserDTO>), 200)]
         [ProducesResponseType(400)]
@@ -177,10 +298,51 @@ namespace LandingAPI.Controllers
         /// <param name="id">Идентификатор пользователя.</param>
         /// <returns>
         /// Возвращает <see cref="IActionResult"/>:
+        /// - 200 OK с списком новостей в формате <see cref="NewsDTO"/>.
         /// - 404 NotFound, если пользователь с указанным идентификатором не найден.
         /// - 400 BadRequest, если модель данных невалидна.
-        /// - 200 OK с списком новостей в формате <see cref="NewsDTO"/>.
         /// </returns>
+        /// <remarks>
+        /// Метод возвращает все новости, связанные с пользователем по его уникальному идентификатору.
+        /// 
+        /// ### Пример запроса:
+        /// GET /api/users/1/News
+        /// 
+        /// ### Пример успешного ответа:
+        /// - **HTTP/1.1 200 OK**
+        /// ```json
+        /// [
+        ///   {
+        ///     "newsId": 1,
+        ///     "title": "Заголовок новости 1",
+        ///     "content": "Содержимое новости 1",
+        ///     "createdAt": "2023-01-01T12:00:00Z"
+        ///   },
+        ///   {
+        ///     "newsId": 2,
+        ///     "title": "Заголовок новости 2",
+        ///     "content": "Содержимое новости 2",
+        ///     "createdAt": "2023-01-02T12:00:00Z"
+        ///   }
+        /// ]
+        /// ```
+        /// 
+        /// ### Пример ошибки (пользователь не найден):
+        /// - **HTTP/1.1 404 Not Found**
+        /// ```json
+        /// {
+        ///   "error": "Пользователь не найден"
+        /// }
+        /// ```
+        /// 
+        /// ### Пример ошибки (невалидная модель):
+        /// - **HTTP/1.1 400 Bad Request**
+        /// ```json
+        /// {
+        ///   "error": "Некорректный запрос"
+        /// }
+        /// ```
+        /// </remarks>
         [HttpGet("{id}/News")]
         [ProducesResponseType(typeof(IEnumerable<NewsDTO>), 200)]
         [ProducesResponseType(400)]
@@ -208,10 +370,66 @@ namespace LandingAPI.Controllers
         /// <param name="model">Модель данных для обновления пользователя, содержащая новое имя пользователя, email и пароль.</param>
         /// <returns>
         /// Возвращает <see cref="IActionResult"/>:
-        /// - 400 BadRequest, если модель данных невалидна.
+        /// - 200 OK с обновленными данными пользователя в формате <see cref="User DetailsDTO"/>.
         /// - 404 NotFound, если пользователь с указанным идентификатором не найден.
-        /// - 200 OK с обновленными данными пользователя.
+        /// - 400 BadRequest, если модель данных невалидна или пользователь с таким именем/email уже существует.
         /// </returns>
+        /// <remarks>
+        /// Метод обновляет информацию о пользователе, включая имя, email и пароль.
+        /// 
+        /// ### Пример запроса:
+        /// PUT /api/users/1
+        /// 
+        /// ```json
+        /// {
+        ///   "username": "newUsername",
+        ///   "email": "newemail@example.com",
+        ///   "password": "newPassword",
+        ///   "roleId": 2
+        /// }
+        /// ```
+        /// 
+        /// ### Пример успешного ответа:
+        /// - **HTTP/1.1 200 OK**
+        /// ```json
+        /// {
+        ///   "userId": 1,
+        ///   "username": "newUsername",
+        ///   "email": "newemail@example.com",
+        ///   "createdAt": "2023-01-01T12:00:00Z",
+        ///   "roles": [
+        ///     {
+        ///       "roleId": 2,
+        ///       "name": "Пользователь"
+        ///     }
+        ///   ]
+        /// }
+        /// ```
+        /// 
+        /// ### Пример ошибки (пользователь не найден):
+        /// - **HTTP/1.1 404 Not Found**
+        /// ```json
+        /// {
+        ///   "error": "Пользователь не найден"
+        /// }
+        /// ```
+        /// 
+        /// ### Пример ошибки (пользователь с таким именем/email уже существует):
+        /// - **HTTP/1.1 400 Bad Request**
+        /// ```json
+        /// {
+        ///   "error": "Пользователь с таким именем уже существует"
+        /// }
+        /// ```
+        /// 
+        /// ### Пример ошибки (невалидная модель):
+        /// - **HTTP/1.1 400 Bad Request**
+        /// ```json
+        /// {
+        ///   "error": "Некорректный запрос"
+        /// }
+        /// ```
+        /// </remarks>
         [HttpPut("{id}")]
         public async Task<ActionResult<UserDetailsDTO>> UpdateUser(int id, [FromBody] UpdateUserDTO dto)
         {
@@ -258,9 +476,26 @@ namespace LandingAPI.Controllers
         /// <param name="id">Идентификатор пользователя, которого нужно удалить.</param>
         /// <returns>
         /// Возвращает <see cref="IActionResult"/>:
-        /// - 404 NotFound, если пользователь с указанным идентификатором не найден.
         /// - 204 NoContent, если пользователь успешно удален.
+        /// - 404 NotFound, если пользователь с указанным идентификатором не найден.
         /// </returns>
+        /// <remarks>
+        /// Метод удаляет пользователя из системы по его уникальному идентификатору.
+        /// 
+        /// ### Пример запроса:
+        /// DELETE /api/users/1
+        /// 
+        /// ### Пример успешного ответа:
+        /// - **HTTP/1.1 204 No Content**
+        /// 
+        /// ### Пример ошибки (пользователь не найден):
+        /// - **HTTP/1.1 404 Not Found**
+        /// ```json
+        /// {
+        ///   "error": "Пользователь не найден"
+        /// }
+        /// ```
+        /// </remarks>
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
@@ -286,6 +521,32 @@ namespace LandingAPI.Controllers
         /// <remarks>
         /// Метод создает DTO (Data Transfer Object) для передачи данных о пользователе,
         /// включая информацию о ролях пользователя.
+        /// 
+        /// ### Пример использования:
+        /// ```csharp
+        /// User user = await _userRepository.GetUser ByIdAsync(userId);
+        /// UserDetailsDTO userDetails = await MapToDetailsDTO(user);
+        /// ```
+        /// 
+        /// ### Структура возвращаемого объекта:
+        /// ```json
+        /// {
+        ///   "userId": 1,
+        ///   "username": "exampleUser ",
+        ///   "email": "user@example.com",
+        ///   "createdAt": "2023-01-01T12:00:00Z",
+        ///   "roles": [
+        ///     {
+        ///       "roleId": 1,
+        ///       "name": "Администратор"
+        ///     },
+        ///     {
+        ///       "roleId": 2,
+        ///       "name": "Пользователь"
+        ///     }
+        ///   ]
+        /// }
+        /// ```
         /// </remarks>
         private async Task<UserDetailsDTO> MapToDetailsDTO(User user)
         {

@@ -51,10 +51,15 @@ namespace LandingAPI.Repository
 
         #region Методы
 
+        #region GetUsersAsync
         /// <summary>
-        /// Получает список всех пользователей, отсортированных по идентификатору.
+        /// Получает список всех пользователей, отсортированных по указанному полю.
         /// </summary>
-        /// <returns>Коллекция пользователей.</returns>
+        /// <param name="pageNumber">Номер страницы для получения (по умолчанию 1).</param>
+        /// <param name="pageSize">Количество пользователей на странице (по умолчанию 10).</param>
+        /// <param name="sortField">Поле, по которому будет производиться сортировка (по умолчанию "User Id").</param>
+        /// <param name="ascending">Определяет порядок сортировки: по возрастанию или убыванию (по умолчанию true).</param>
+        /// <returns>Кортеж, содержащий коллекцию пользователей и общее количество пользователей.</returns>
         public async Task<(ICollection<User> Users, int TotalCount)> GetUsersAsync(
             int pageNumber = 1,
             int pageSize = 10,
@@ -70,7 +75,6 @@ namespace LandingAPI.Repository
                 _ => ascending ? query.OrderBy(u => u.UserId) : query.OrderByDescending(u => u.UserId)
             };
 
-            // Пагинация
             var totalCount = await query.CountAsync();
             var users = await query
                 .Skip((pageNumber - 1) * pageSize)
@@ -78,9 +82,10 @@ namespace LandingAPI.Repository
                 .ToListAsync();
 
             return (users, totalCount);
-            //return await _context.Users.OrderBy(u => u.UserId).ToListAsync();
         }
+        #endregion
 
+        #region GetUserByIdAsync
         /// <summary>
         /// Получает пользователя по его идентификатору.
         /// </summary>
@@ -90,7 +95,9 @@ namespace LandingAPI.Repository
         {
             return await _context.Users.Where(n => n.UserId == id).FirstOrDefaultAsync();
         }
+        #endregion
 
+        #region GetUserByNameAsync
         /// <summary>
         /// Получает пользователя по его имени.
         /// </summary>
@@ -100,7 +107,9 @@ namespace LandingAPI.Repository
         {
             return await _context.Users.Where(n => n.Username == username).FirstOrDefaultAsync();
         }
+        #endregion
 
+        #region GetNewsByUserIdAsync
         /// <summary>
         /// Получает список новостей, созданных определенным пользователем.
         /// </summary>
@@ -110,7 +119,9 @@ namespace LandingAPI.Repository
         {
             return await _context.News.Where(n => n.CreatedById == userId).ToListAsync();
         }
+        #endregion
 
+        #region UserExistsByIdAsync
         /// <summary>
         /// Проверяет существование пользователя по его идентификатору.
         /// </summary>
@@ -122,7 +133,9 @@ namespace LandingAPI.Repository
         {
             return await _context.Users.AnyAsync(n => n.UserId == id);
         }
+        #endregion
 
+        #region UserExistsByNameAsync
         /// <summary>
         /// Проверяет существование пользователя по его имени.
         /// </summary>
@@ -134,7 +147,9 @@ namespace LandingAPI.Repository
         {
             return await _context.Users.AnyAsync(n => n.Username == username);
         }
+        #endregion
 
+        #region GetUserByEmailAsync
         /// <summary>
         /// Получает пользователя по его электронной почте.
         /// </summary>
@@ -144,7 +159,9 @@ namespace LandingAPI.Repository
         {
             return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
         }
+        #endregion
 
+        #region UserExistsByEmailAsync
         /// <summary>
         /// Проверяет существование пользователя по его электронной почте.
         /// </summary>
@@ -156,7 +173,9 @@ namespace LandingAPI.Repository
         {
             return await _context.Users.AnyAsync(u => u.Email == email);
         }
+        #endregion
 
+        #region AddUserAsync
         /// <summary>
         /// Добавляет нового пользователя в базу данных.
         /// </summary>
@@ -166,7 +185,9 @@ namespace LandingAPI.Repository
             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
         }
+        #endregion
 
+        #region UpdateUserAsync
         /// <summary>
         /// Обновляет данные пользователя в базе данных.
         /// </summary>
@@ -176,7 +197,9 @@ namespace LandingAPI.Repository
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
         }
+        #endregion
 
+        #region DeleteUserAsync
         /// <summary>
         /// Удаляет пользователя из базы данных.
         /// </summary>
@@ -186,7 +209,9 @@ namespace LandingAPI.Repository
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
         }
+        #endregion
 
+        #region AssignRoleAsync
         /// <summary>
         /// Назначает роль пользователю.
         /// </summary>
@@ -214,7 +239,9 @@ namespace LandingAPI.Repository
             user.UserRoles.Add(new UserRole { RoleId = roleId });
             await _context.SaveChangesAsync();
         }
+        #endregion
 
+        #region RemoveRoleAsync
         /// <summary>
         /// Удаляет роль у пользователя.
         /// </summary>
@@ -239,6 +266,7 @@ namespace LandingAPI.Repository
             user.UserRoles.Remove(userRole);
             await _context.SaveChangesAsync();
         }
+        #endregion
 
         #endregion
     }

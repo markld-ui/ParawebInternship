@@ -1,5 +1,10 @@
 ﻿#region Заголовок файла
 
+/// <summary>
+/// Файл: AssignRoleDTO.cs
+/// Класс Data Transfer Object (DTO) для передачи данных о назначении или удалении роли пользователю.
+/// Используется для взаимодействия между слоями приложения.
+/// </summary>
 
 #endregion
 
@@ -11,11 +16,6 @@
 
 #endregion
 
-/// <summary>
-/// Файл: AssignRoleDTO.cs
-/// Класс Data Transfer Object (DTO) для передачи данных о назначении или удалении роли пользователю.
-/// Используется для взаимодействия между слоями приложения.
-/// </summary>
 namespace LandingAPI.DTO.Roles
 {
     #region Класс AssignRoleDTO

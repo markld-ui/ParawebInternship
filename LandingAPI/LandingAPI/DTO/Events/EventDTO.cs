@@ -37,6 +37,7 @@ namespace LandingAPI.DTO.Events
         [Required(ErrorMessage = "Заголовок является обязательным")]
         [MinLength(1, ErrorMessage = "Заголовок не может быть пустым")]
         [MaxLength(100, ErrorMessage = "Заголовок не может превышать 100 символов")]
+        /// <example>Конференция по разработке ПО</example>
         public string Title { get; set; }
 
         /// <summary>
@@ -45,26 +46,29 @@ namespace LandingAPI.DTO.Events
         [Required(ErrorMessage = "Описание является обязательным")]
         [MinLength(1, ErrorMessage = "Описание не может быть пустым")]
         [MaxLength(5000, ErrorMessage = "Описание не может превышать 5000 символов")]
+        /// <example>Это годовая конференция, посвященная последним достижениям в области разработки программного обеспечения.</example>
         public string Description { get; set; }
 
         /// <summary>
         /// Дата и время начала события. Обязательное поле.
         /// </summary>
-        public required DateTime StartDate { get; set; }
+        public required DateTime StartDate { get; set; } // <example>2023-10-01T10:00:00</example>
 
         /// <summary>
         /// Дата и время окончания события. Обязательное поле.
         /// </summary>
-        public required DateTime EndDate { get; set; }
+        public required DateTime EndDate { get; set; } // <example>2023-10-01T18:00:00</example>
 
         /// <summary>
         /// Местоположение события. Может быть null.
         /// </summary>
+        /// <example>Городской конференц-центр</example>
         public required string? Location { get; set; }
 
         /// <summary>
         /// Идентификатор файла, связанного с событием. Может быть null.
         /// </summary>
+        /// <example>42</example>
         public int? FileId { get; set; }
 
         /// <summary>

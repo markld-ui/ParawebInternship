@@ -25,6 +25,7 @@ namespace LandingAPI.Services.Auth
     {
         #region Методы
 
+        #region Generate
         /// <summary>
         /// Генерирует хеш пароля с использованием алгоритма BCrypt.
         /// </summary>
@@ -32,7 +33,9 @@ namespace LandingAPI.Services.Auth
         /// <returns>Хешированный пароль.</returns>
         public string Generate(string password) =>
             BCrypt.Net.BCrypt.EnhancedHashPassword(password);
+        #endregion
 
+        #region EnhancedVerify
         /// <summary>
         /// Проверяет соответствие пароля его хешу с использованием алгоритма BCrypt.
         /// </summary>
@@ -43,6 +46,7 @@ namespace LandingAPI.Services.Auth
         /// </returns>
         public bool Verify(string password, string hashedPassword) =>
             BCrypt.Net.BCrypt.EnhancedVerify(password, hashedPassword);
+        #endregion
 
         #endregion
     }

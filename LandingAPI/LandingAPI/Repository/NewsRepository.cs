@@ -50,10 +50,15 @@ namespace LandingAPI.Repository
 
         #region Методы
 
+        #region GetNewsAsync
         /// <summary>
-        /// Получает список всех новостей, отсортированных по идентификатору.
+        /// Получает список всех новостей, отсортированных по указанному полю.
         /// </summary>
-        /// <returns>Коллекция новостей.</returns>
+        /// <param name="pageNumber">Номер страницы для получения (по умолчанию 1).</param>
+        /// <param name="pageSize">Количество новостей на странице (по умолчанию 10).</param>
+        /// <param name="sortField">Поле, по которому будет производиться сортировка (по умолчанию "NewsId").</param>
+        /// <param name="ascending">Определяет порядок сортировки: по возрастанию или убыванию (по умолчанию true).</param>
+        /// <returns>Кортеж, содержащий коллекцию новостей и общее количество новостей.</returns>
         public async Task<(ICollection<News> News, int TotalCount)> GetNewsAsync(
             int pageNumber = 1,
             int pageSize = 10,
@@ -80,7 +85,9 @@ namespace LandingAPI.Repository
 
             return (news, totalCount);
         }
+        #endregion
 
+        #region GetNewsAsync
         /// <summary>
         /// Получает новость по ее идентификатору.
         /// </summary>
@@ -90,7 +97,9 @@ namespace LandingAPI.Repository
         {
             return await _context.News.Where(n => n.NewsId == newsId).FirstOrDefaultAsync();
         }
+        #endregion
 
+        #region GetNewsByTitleAsync
         /// <summary>
         /// Получает новость по ее заголовку (с использованием поиска по частичному совпадению).
         /// </summary>
@@ -102,7 +111,9 @@ namespace LandingAPI.Repository
                 .Where(n => EF.Functions.Like(n.Title, $"%{title}%"))
                 .FirstOrDefaultAsync();
         }
+        #endregion
 
+        #region NewsExistsAsync
         /// <summary>
         /// Проверяет существование новости по ее идентификатору.
         /// </summary>
@@ -114,7 +125,9 @@ namespace LandingAPI.Repository
         {
             return await _context.News.AnyAsync(n => n.NewsId == newsId);
         }
+        #endregion
 
+        #region NewsExistsByTitleAsync
         /// <summary>
         /// Проверяет существование новости по ее заголовку (с использованием поиска по частичному совпадению).
         /// </summary>
@@ -127,24 +140,44 @@ namespace LandingAPI.Repository
             return await _context.News
                 .AnyAsync(n => EF.Functions.Like(n.Title, $"%{title}%"));
         }
+        #endregion
 
+        #region AddNewsAsync
+        /// <summary>
+        /// Добавляет новость в базу данных асинхронно.
+        /// </summary>
+        /// <param name="news">Объект новости, который нужно добавить.</param>
         public async Task AddNewsAsync(News news)
         {
             await _context.News.AddAsync(news);
             await _context.SaveChangesAsync();
         }
+        #endregion
 
+        #region UpdateNewsAsync
+        /// <summary>
+        /// Обновляет существующую новость в базе данных асинхронно.
+        /// </summary>
+        /// <param name="news">Объект новости с обновленными данными.</param>
         public async Task UpdateNewsAsync(News news)
         {
             _context.News.Update(news);
             await _context.SaveChangesAsync();
         }
+        #endregion
 
+        #region DeleteNewsAsync
+        /// <summary>
+        /// Удаляет новость из базы данных асинхронно.
+        /// </summary>
+        /// <param name="news">Объект новости, который нужно удалить.</param>
         public async Task DeleteNewsAsync(News news)
         {
             _context.News.Remove(news);
             await _context.SaveChangesAsync();
         }
+        #endregion
+
         #endregion
     }
 
