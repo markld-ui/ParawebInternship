@@ -17,6 +17,7 @@ using Microsoft.EntityFrameworkCore;
 using LandingAPI.Interfaces.Repositories;
 using LandingAPI.Services;
 using LandingAPI.DTO.Files;
+using LandingAPI.Helper;
 
 #endregion
 
@@ -67,21 +68,36 @@ namespace LandingAPI.Controllers
         /// Возвращает <see cref="IActionResult"/>:
         /// - 400 BadRequest, если модель данных невалидна.
         /// - 404 NotFound, если файлы не найдены.
-        /// - 200 OK с списком файлов в формате <see cref="FilesDTO"/>.
+        /// - 200 OK с списком файлов в формате <see cref="FileDetailsDTO"/>.
         /// </returns>
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<FilesDTO>), 200)]
-        public async Task<IActionResult> GetFilesAsync()
+        [ProducesResponseType(typeof(PagedResponse<FileDetailsDTO>), 200)]
+        public async Task<IActionResult> GetFilesAsync(
+            [FromQuery] int page = 1,
+            [FromQuery] int size = 10,
+            [FromQuery] string sort = "UploadedAt",
+            [FromQuery] bool asc = false)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            var (files, totalCount) = await _filesRepository.GetFilesAsync(page, size, sort, asc);
+            if (files == null || !files.Any())
+                return NotFound("Файлы не найдены");
 
-            var files = await _filesRepository.GetFilesAsync();
-            if (files == null)
-                return NotFound();
+            var filesDtos = files.Select(f => new FileDetailsDTO
+            {
+                FileId = f.FileId,
+                FileName = f.FileName,
+                UploadedAt = f.UploadedAt,
+                DownloadUrl = Url.Action("DownloadFile", "Files", new { id = f.FileId }, Request.Scheme),
+                FileSize = new FileInfo(f.FilePath).Length
+            }).ToList();
 
-            var filesDtos = _mapper.Map<List<FilesDTO>>(files);
-            return Ok(filesDtos);
+            return Ok(new PagedResponse<FileDetailsDTO>
+            {
+                Data = filesDtos,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = size
+            });
         }
 
         #endregion
@@ -96,22 +112,24 @@ namespace LandingAPI.Controllers
         /// Возвращает <see cref="IActionResult"/>:
         /// - 404 NotFound, если файл с указанным идентификатором не найден.
         /// - 400 BadRequest, если модель данных невалидна.
-        /// - 200 OK с данными файла в формате <see cref="FilesDTO"/>.
+        /// - 200 OK с данными файла в формате <see cref="FileDetailsDTO"/>.
         /// </returns>
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(IEnumerable<FilesDTO>), 200)]
-        [ProducesResponseType(400)]
+        [ProducesResponseType(typeof(FileDetailsDTO), 200)]
         public async Task<IActionResult> GetFileAsync(int id)
         {
-            if (!await _filesRepository.FileExistsByIdAsync(id))
-                return NotFound();
-
-            if (!ModelState.IsValid)
-                return BadRequest();
-
             var file = await _filesRepository.GetFileByIdAsync(id);
-            var fileDtos = _mapper.Map<FilesDTO>(file);
-            return Ok(fileDtos);
+            if (file == null)
+                return NotFound("Файл не найден");
+
+            return Ok(new FileDetailsDTO
+            {
+                FileId = file.FileId,
+                FileName = file.FileName,
+                UploadedAt = file.UploadedAt,
+                DownloadUrl = Url.Action("DownloadFile", "Files", new { id = file.FileId }, Request.Scheme),
+                FileSize = new FileInfo(file.FilePath).Length
+            });
         }
 
         #endregion
@@ -193,18 +211,23 @@ namespace LandingAPI.Controllers
         /// - 200 OK с данными загруженного файла.
         /// </returns>
         [HttpPost("upload")]
-        [ProducesResponseType(typeof(FilesDTO), 200)]
-        [ProducesResponseType(400)]
-        public async Task<IActionResult> UploadFile(IFormFile file)
+        [ProducesResponseType(typeof(FileDetailsDTO), 200)]
+        public async Task<IActionResult> UploadFile([FromForm] FileUploadDTO dto)
         {
-            if (file == null || file.Length == 0)
-                return BadRequest("Файл не был предоставлен.");
+            if (dto.File == null || dto.File.Length == 0)
+                return BadRequest("Файл не был предоставлен");
 
             try
             {
-                var uploadedFile = await _fileService.UploadFileAsync(file);
-                var fileDto = _mapper.Map<FilesDTO>(uploadedFile);
-                return Ok(fileDto);
+                var uploadedFile = await _fileService.UploadFileAsync(dto.File);
+                return Ok(new FileDetailsDTO
+                {
+                    FileId = uploadedFile.FileId,
+                    FileName = uploadedFile.FileName,
+                    UploadedAt = uploadedFile.UploadedAt,
+                    DownloadUrl = Url.Action("DownloadFile", "Files", new { id = uploadedFile.FileId }, Request.Scheme),
+                    FileSize = dto.File.Length
+                });
             }
             catch (Exception ex)
             {

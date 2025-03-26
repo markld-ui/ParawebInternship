@@ -63,7 +63,6 @@ namespace LandingAPI.Services
         /// <returns>Информация о загруженном файле.</returns>
         public async Task<Files> UploadFileAsync(IFormFile file)
         {
-            // Генерируем уникальное имя файла
             var uniqueFileName = $"{Guid.NewGuid()}_{file.FileName}";
             var filePath = Path.Combine(_uploadDirectory, uniqueFileName);
 
@@ -73,7 +72,7 @@ namespace LandingAPI.Services
                 await file.CopyToAsync(stream);
             }
 
-            // Создаем запись о файле в базе данных
+            // Создаем запись о файле
             var fileEntity = new Files
             {
                 FileName = file.FileName,
@@ -82,7 +81,6 @@ namespace LandingAPI.Services
             };
 
             await _filesRepository.AddFileAsync(fileEntity);
-
             return fileEntity;
         }
 
@@ -120,8 +118,7 @@ namespace LandingAPI.Services
             if (file == null || !System.IO.File.Exists(file.FilePath))
                 return (null, null);
 
-            var stream = new FileStream(file.FilePath, FileMode.Open, FileAccess.Read);
-            return (file, stream);
+            return (file, new FileStream(file.FilePath, FileMode.Open, FileAccess.Read));
         }
 
         #endregion

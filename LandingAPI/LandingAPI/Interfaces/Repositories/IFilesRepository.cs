@@ -30,8 +30,16 @@ namespace LandingAPI.Interfaces.Repositories
         /// <summary>
         /// Получает список всех файлов.
         /// </summary>
-        /// <returns>Коллекция файлов.</returns>
-        Task<ICollection<Files>> GetFilesAsync();
+        /// <param name="pageNumber">Номер страницы для получения (по умолчанию 1).</param>
+        /// <param name="pageSize">Количество файлов на странице (по умолчанию 10).</param>
+        /// <param name="sortField">Поле, по которому будет выполнена сортировка (по умолчанию "UploadedAt").</param>
+        /// <param name="ascending">Указывает, должна ли сортировка быть по возрастанию (по умолчанию true).</param>
+        /// <returns>Кортеж, содержащий коллекцию файлов и общее количество файлов.</returns>
+        Task<(ICollection<Files> Files, int TotalCount)> GetFilesAsync(
+            int pageNumber = 1,
+            int pageSize = 10,
+            string sortField = "UploadedAt",
+            bool ascending = false);
 
         /// <summary>
         /// Получает файл по его идентификатору.

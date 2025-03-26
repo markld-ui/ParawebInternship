@@ -88,9 +88,29 @@ namespace LandingAPI.Repository
         /// Получает список всех файлов, отсортированных по идентификатору.
         /// </summary>
         /// <returns>Коллекция файлов.</returns>
-        public async Task<ICollection<Files>> GetFilesAsync()
+        public async Task<(ICollection<Files> Files, int TotalCount)> GetFilesAsync(
+            int pageNumber = 1,
+            int pageSize = 10,
+            string sortField = "UploadedAt",
+            bool ascending = false)
         {
-            return await _context.Files.OrderBy(f => f.FileId).ToListAsync();
+            var query = _context.Files.AsQueryable();
+
+            query = sortField switch
+            {
+                "FileName" => ascending ? query.OrderBy(f => f.FileName) : query.OrderByDescending(f => f.FileName),
+                "FileSize" => ascending ? query.OrderBy(f => new FileInfo(f.FilePath).Length)
+                                 : query.OrderByDescending(f => new FileInfo(f.FilePath).Length),
+                _ => ascending ? query.OrderBy(f => f.UploadedAt) : query.OrderByDescending(f => f.UploadedAt)
+            };
+
+            var totalCount = await query.CountAsync();
+            var files = await query
+                .Skip((pageSize - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (files, totalCount);
         }
 
         public async Task AddFileAsync(Files file)
