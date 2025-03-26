@@ -83,12 +83,16 @@ namespace LandingAPI.Repository
             string sortField = "EventId",
             bool ascending = true)
         {
-            var query = _context.Events.AsQueryable();
+            var query = _context.Events
+                .Include(e => e.CreatedBy)
+                .Include(e => e.File)
+                .AsQueryable();
 
             query = sortField switch
             {
                 "Title" => ascending ? query.OrderBy(e => e.Title) : query.OrderByDescending(e => e.Title),
-                "Description" => ascending ? query.OrderBy(e => e.Description) : query.OrderByDescending(e => e.Description),
+                "StartDate" => ascending ? query.OrderBy(e => e.StartDate) : query.OrderByDescending(e => e.StartDate),
+                "EndDate" => ascending ? query.OrderBy(e => e.EndDate) : query.OrderByDescending(e => e.EndDate),
                 _ => ascending ? query.OrderBy(e => e.EventId) : query.OrderByDescending(e => e.EventId)
             };
 

@@ -12,6 +12,7 @@
 #region Пространства имен
 
 using AutoMapper;
+using LandingAPI.DTO.Common;
 using LandingAPI.DTO.News;
 using LandingAPI.Helper;
 using LandingAPI.Interfaces.Repositories;
@@ -130,7 +131,7 @@ namespace LandingAPI.Controllers
                 return NotFound("Новость не найдена");
 
             var news = await _newsRepository.GetNewsAsync(id);
-            return Ok(await MapToDetailsDto(news));
+            return Ok(await MapToDetailsDTO(news));
         }
 
         #endregion
@@ -203,7 +204,7 @@ namespace LandingAPI.Controllers
 
             await _newsRepository.AddNewsAsync(news);
 
-            return Ok(await MapToDetailsDto(news));
+            return Ok(await MapToDetailsDTO(news));
         }
 
         #endregion
@@ -254,7 +255,7 @@ namespace LandingAPI.Controllers
             news.Content = dto.Content;
 
             await _newsRepository.UpdateNewsAsync(news);
-            return Ok(await MapToDetailsDto(news));
+            return Ok(await MapToDetailsDTO(news));
         }
 
         #endregion
@@ -287,7 +288,7 @@ namespace LandingAPI.Controllers
 
         #endregion
 
-        #region MapToDetailsDto
+        #region MapToDetailsDTO
 
         /// <summary>
         /// Преобразует объект <see cref="News"/> в объект <see cref="NewsDetailsDTO"/>.
@@ -300,7 +301,7 @@ namespace LandingAPI.Controllers
         /// Метод создает DTO (Data Transfer Object) для передачи данных о новости,
         /// включая информацию о создателе и файле, если он доступен.
         /// </remarks>
-        private async Task<NewsDetailsDTO> MapToDetailsDto(News news)
+        private async Task<NewsDetailsDTO> MapToDetailsDTO(News news)
         {
             return new NewsDetailsDTO
             {

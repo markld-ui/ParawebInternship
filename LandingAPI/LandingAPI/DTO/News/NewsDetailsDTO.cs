@@ -1,4 +1,5 @@
 ﻿using System;
+using LandingAPI.DTO.Common;
 
 namespace LandingAPI.DTO.News
 {
@@ -10,18 +11,5 @@ namespace LandingAPI.DTO.News
         public DateTime CreatedAt { get; set; }
         public AuthorDTO CreatedBy { get; set; }
         public FileInfoDTO? File { get; set; }
-    }
-
-    public class AuthorDTO
-    {
-        public int UserId { get; set; }
-        public string UserName { get; set; }
-    }
-
-    public class FileInfoDTO
-    {
-        public int FileId { get; set; }
-        public string FileName { get; set; }
-        public string DownloadUrl { get; set; }
     }
 }

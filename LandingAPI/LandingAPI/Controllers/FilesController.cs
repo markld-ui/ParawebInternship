@@ -204,7 +204,7 @@ namespace LandingAPI.Controllers
         /// <summary>
         /// Загружает файл на сервер.
         /// </summary>
-        /// <param name="file">Файл для загрузки.</param>
+        /// <param name="dto">Файл для загрузки.</param>
         /// <returns>
         /// Возвращает <see cref="IActionResult"/>:
         /// - 400 BadRequest, если файл не был предоставлен.
