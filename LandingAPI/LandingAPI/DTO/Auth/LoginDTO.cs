@@ -4,6 +4,12 @@
 // Используется для передачи данных о входе в систему (email и пароль) между слоями приложения.
 #endregion
 
+#region Пространства имен
+
+using System.ComponentModel.DataAnnotations;
+
+#endregion
+
 namespace LandingAPI.DTO.Auth
 {
     #region Класс LoginDTO
@@ -18,12 +24,14 @@ namespace LandingAPI.DTO.Auth
         /// Электронная почта пользователя. Используется для идентификации пользователя.
         /// </summary>
         /// <example>user@example.com</example>
+        [Required]
         public string Email { get; set; }
 
         /// <summary>
         /// Пароль пользователя. Используется для проверки подлинности.
         /// </summary>
         /// <example>Pa$$w0rd</example>
+        [Required]
         public string Password { get; set; }
 
         #endregion

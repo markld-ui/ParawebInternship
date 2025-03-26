@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace LandingAPI.DTO.Users
 {
-    #region Класс
+    #region Класс UpdateUserDTO
     /// <summary>
     /// Data Transfer Object (DTO) для обновления информации о пользователе.
     /// </summary>

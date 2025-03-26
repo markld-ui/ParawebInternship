@@ -10,9 +10,7 @@
 
 #region Пространства имен
 
-// Здесь можно добавить используемые пространства имен, если они есть.
-// Например:
-// using LandingAPI.Models;
+using System.ComponentModel.DataAnnotations;
 
 #endregion
 
@@ -30,11 +28,13 @@ namespace LandingAPI.DTO.Roles
         /// <summary>
         /// Идентификатор пользователя, которому назначается или удаляется роль.
         /// </summary>
+        [Required]
         public int UserId { get; set; }
 
         /// <summary>
         /// Идентификатор роли, которая назначается или удаляется.
         /// </summary>
+        [Required]
         public int RoleId { get; set; }
 
         #endregion
