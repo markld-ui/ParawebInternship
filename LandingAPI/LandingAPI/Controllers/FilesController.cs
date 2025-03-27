@@ -18,6 +18,7 @@ using LandingAPI.Interfaces.Repositories;
 using LandingAPI.Services;
 using LandingAPI.DTO.Files;
 using LandingAPI.Helper;
+using LandingAPI.DTO.Roles;
 
 #endregion
 
@@ -39,6 +40,7 @@ namespace LandingAPI.Controllers
         private readonly IFilesRepository _filesRepository;
         private readonly IMapper _mapper;
         private readonly FileService _fileService;
+        private readonly IWebHostEnvironment _environment;
 
         #endregion
 
@@ -50,11 +52,18 @@ namespace LandingAPI.Controllers
         /// <param name="filesRepository">Репозиторий для работы с файлами.</param>
         /// <param name="mapper">Объект для маппинга данных между моделями и DTO.</param>
         /// /// <param name="configuration">Конфигурация приложения.</param>
-        public FilesController(IFilesRepository filesRepository, IMapper mapper, IConfiguration configuration, FileService fileService)
+        /// <param name="environment">Среда выполнения веб-приложения.</param>
+        public FilesController(
+            IFilesRepository filesRepository, 
+            IMapper mapper, 
+            IConfiguration configuration, 
+            FileService fileService,
+            IWebHostEnvironment environment)
         {
             _filesRepository = filesRepository;
             _mapper = mapper;
             _fileService = fileService;
+            _environment = environment;
         }
 
         #endregion
@@ -129,8 +138,8 @@ namespace LandingAPI.Controllers
                 FileId = f.FileId,
                 FileName = f.FileName,
                 UploadedAt = f.UploadedAt,
-                DownloadUrl = Url.Action("DownloadFile", "Files", new { id = f.FileId }, Request.Scheme),
-                FileSize = new FileInfo(f.FilePath).Length
+                DownloadUrl = _fileService.GetFileUrl(f, Request),
+                FileSize = new FileInfo(Path.Combine(_environment.WebRootPath, f.FilePath)).Length
             }).ToList();
 
             return Ok(new PagedResponse<FileDetailsDTO>
@@ -195,8 +204,8 @@ namespace LandingAPI.Controllers
                 FileId = file.FileId,
                 FileName = file.FileName,
                 UploadedAt = file.UploadedAt,
-                DownloadUrl = Url.Action("DownloadFile", "Files", new { id = file.FileId }, Request.Scheme),
-                FileSize = new FileInfo(file.FilePath).Length
+                DownloadUrl = _fileService.GetFileUrl(file, Request),
+                FileSize = new FileInfo(Path.Combine(_environment.WebRootPath, file.FilePath)).Length
             });
         }
 
@@ -210,7 +219,7 @@ namespace LandingAPI.Controllers
         /// <param name="newsId">Идентификатор новости.</param>
         /// <returns>
         /// Возвращает <see cref="IActionResult"/>:
-        /// - 200 OK с данными файла в формате <see cref="FilesDTO"/> в случае успешного запроса.
+        /// - 200 OK с данными файла в формате <see cref="FileDetailsDTO"/> в случае успешного запроса.
         /// - 404 NotFound, если файл не найден.
         /// - 400 BadRequest, если модель данных невалидна.
         /// </returns>
@@ -246,7 +255,7 @@ namespace LandingAPI.Controllers
         [HttpGet("news/{newsId}")]
         [MapToApiVersion("1.0")]
         [MapToApiVersion("99.0")]
-        [ProducesResponseType(typeof(IEnumerable<FilesDTO>), 200)]
+        [ProducesResponseType(typeof(IEnumerable<FileDetailsDTO>), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         public async Task<IActionResult> GetFileByNewsId(int newsId)
@@ -258,10 +267,11 @@ namespace LandingAPI.Controllers
             if (file == null)
                 return NotFound();
 
-            var fileDtos = _mapper.Map<FilesDTO>(file);
+            var fileDtos = _mapper.Map<FileDetailsDTO>(file);
             if (fileDtos == null)
                 return NotFound();
 
+            fileDtos.DownloadUrl = _fileService.GetFileUrl(file, Request);
             return Ok(fileDtos);
         }
 
@@ -275,7 +285,7 @@ namespace LandingAPI.Controllers
         /// <param name="eventId">Идентификатор события.</param>
         /// <returns>
         /// Возвращает <see cref="IActionResult"/>:
-        /// - 200 OK с данными файла в формате <see cref="FilesDTO"/> в случае успешного запроса.
+        /// - 200 OK с данными файла в формате <see cref="FileDetailsDTO"/> в случае успешного запроса.
         /// - 404 NotFound, если файл не найден.
         /// - 400 BadRequest, если модель данных невалидна.
         /// </returns>
@@ -311,7 +321,7 @@ namespace LandingAPI.Controllers
         [HttpGet("events/{eventId}")]
         [MapToApiVersion("1.0")]
         [MapToApiVersion("99.0")]
-        [ProducesResponseType(typeof(IEnumerable<FilesDTO>), 200)]
+        [ProducesResponseType(typeof(IEnumerable<FileDetailsDTO>), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         public async Task<IActionResult> GetFileByEventId(int eventId)
@@ -319,14 +329,15 @@ namespace LandingAPI.Controllers
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            var file = _filesRepository.GetFileByEventIdAsync(eventId);
+            var file = await _filesRepository.GetFileByEventIdAsync(eventId);
             if (file == null)
                 return NotFound();
 
-            var fileDtos = _mapper.Map<FilesDTO>(file);
+            var fileDtos = _mapper.Map<FileDetailsDTO>(file);
             if (fileDtos == null)
                 return NotFound();
 
+            fileDtos.DownloadUrl = _fileService.GetFileUrl(file, Request);
             return Ok(fileDtos);
         }
 
@@ -397,7 +408,7 @@ namespace LandingAPI.Controllers
                     FileId = uploadedFile.FileId,
                     FileName = uploadedFile.FileName,
                     UploadedAt = uploadedFile.UploadedAt,
-                    DownloadUrl = Url.Action("DownloadFile", "Files", new { id = uploadedFile.FileId }, Request.Scheme),
+                    DownloadUrl = _fileService.GetFileUrl(uploadedFile, Request),
                     FileSize = dto.File.Length
                 });
             }

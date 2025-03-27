@@ -73,7 +73,10 @@ namespace LandingAPI.Repository
                 sortField = "UserId";
             }
 
-            var query = _context.Users.AsQueryable();
+            var query = _context.Users
+                .Include(u => u.UserRoles)
+                .ThenInclude(ur => ur.Role)
+                .AsQueryable();
 
             string orderDirection = ascending ? "ASC" : "DESC";
             query = query.OrderBy($"{sortField} {orderDirection}");

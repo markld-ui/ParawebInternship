@@ -18,6 +18,7 @@ using LandingAPI.Helper;
 using LandingAPI.Interfaces.Repositories;
 using LandingAPI.Models;
 using LandingAPI.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -341,7 +342,7 @@ namespace LandingAPI.Controllers
         /// }
         /// ```
         /// </remarks>
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [MapToApiVersion("99.0")]
         [HttpPost]
         public async Task<ActionResult<NewsDetailsDTO>> CreateNews([FromForm] CreateNewsDTO dto)
@@ -430,7 +431,7 @@ namespace LandingAPI.Controllers
         /// }
         /// ```
         /// </remarks>
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [MapToApiVersion("99.0")]
         [HttpPut("{id}")]
         public async Task<ActionResult<NewsDetailsDTO>> UpdateNews(int id, [FromForm] UpdateNewsDTO dto)
@@ -494,7 +495,7 @@ namespace LandingAPI.Controllers
         /// }
         /// ```
         /// </remarks>
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [MapToApiVersion("99.0")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteNews(int id)
@@ -560,7 +561,7 @@ namespace LandingAPI.Controllers
                 {
                     FileId = news.FileId.Value,
                     FileName = news.File.FileName,
-                    DownloadUrl = Url.Action("DownloadFile", "Files", new { id = news.FileId })
+                    DownloadUrl = _fileService.GetFileUrl(news.File, Request)
                 } : null
             };
         }

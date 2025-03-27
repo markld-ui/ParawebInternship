@@ -11,6 +11,8 @@
 #region Пространства имен
 
 using LandingAPI.Data;
+using LandingAPI.Interfaces.Auth;
+using LandingAPI.Services.Auth;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;

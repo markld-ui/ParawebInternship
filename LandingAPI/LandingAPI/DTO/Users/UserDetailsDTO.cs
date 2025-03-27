@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using LandingAPI.DTO.Roles;
 
 #endregion
 
@@ -38,26 +39,6 @@ namespace LandingAPI.DTO.Users
         /// Список ролей, присвоенных пользователю.
         /// </summary>
         public List<RoleDTO> Roles { get; set; } = new();
-        #endregion
-    }
-    #endregion
-
-    #region Класс RoleDTO
-    /// <summary>
-    /// Data Transfer Object (DTO) для представления роли пользователя.
-    /// </summary>
-    public class RoleDTO
-    {
-        #region Свойства
-        /// <summary>
-        /// Уникальный идентификатор роли.
-        /// </summary>
-        public int RoleId { get; set; }
-
-        /// <summary>
-        /// Название роли.
-        /// </summary>
-        public string Name { get; set; }
         #endregion
     }
     #endregion

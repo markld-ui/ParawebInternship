@@ -34,6 +34,12 @@ namespace LandingAPI.DTO.News
         public IFormFile? NewFile { get; set; }
 
         /// <summary>
+        /// ID файла, нового связанного с новостью. Необязательное поле.
+        /// </summary>
+        /// <example>42</example>
+        public int? NewFileId { get; set; }
+
+        /// <summary>
         /// Указывает, нужно ли удалить существующий файл. Может быть null.
         /// </summary>
         public bool? RemoveFile { get; set; }

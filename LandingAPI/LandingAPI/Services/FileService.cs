@@ -29,7 +29,8 @@ namespace LandingAPI.Services
         #region Поля
 
         private readonly IFilesRepository _filesRepository;
-        private readonly string _uploadDirectory;
+        private readonly string _webRootPath;
+        private const string FilesFolder = "files";
 
         #endregion
 
@@ -38,17 +39,18 @@ namespace LandingAPI.Services
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="FileService"/>.
         /// </summary>
-        /// <param name="filesRepository">Репозиторий для работы с файлами.</param>
-        /// <param name="uploadDirectory">Директория для загрузки файлов.</param>
-        public FileService(IFilesRepository filesRepository, string uploadDirectory)
+        /// <param name="filesRepository">Репозиторий для работы с файлами, реализующий интерфейс <see cref="IFilesRepository"/>.</param>
+        /// <param name="environment">Объект, представляющий среду веб-хостинга, 
+        /// содержащий информацию о директории для загрузки файлов, реализующий интерфейс <see cref="IWebHostEnvironment"/>.</param>
+        public FileService(IFilesRepository filesRepository, IWebHostEnvironment environment)
         {
             _filesRepository = filesRepository;
-            _uploadDirectory = uploadDirectory;
+            _webRootPath = environment.WebRootPath;
 
-            // Создаем директорию, если она не существует
-            if (!Directory.Exists(_uploadDirectory))
+            var filesDirectory = Path.Combine(_webRootPath, FilesFolder);
+            if (!Directory.Exists(filesDirectory))
             {
-                Directory.CreateDirectory(_uploadDirectory);
+                Directory.CreateDirectory(filesDirectory);
             }
         }
 
@@ -57,27 +59,27 @@ namespace LandingAPI.Services
         #region Методы
 
         #region UploadFileAsync
+
         /// <summary>
         /// Загружает файл на сервер и сохраняет информацию о нем в базе данных.
         /// </summary>
-        /// <param name="file">Файл для загрузки.</param>
-        /// <returns>Информация о загруженном файле.</returns>
+        /// <param name="file">Файл для загрузки, представленный интерфейсом <see cref="IFormFile"/>.</param>
+        /// <returns>Информация о загруженном файле в виде объекта <see cref="Files"/>.</returns>
         public async Task<Files> UploadFileAsync(IFormFile file)
         {
-            var uniqueFileName = $"{Guid.NewGuid()}_{file.FileName}";
-            var filePath = Path.Combine(_uploadDirectory, uniqueFileName);
+            var uniqueFileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+            var relativePath = Path.Combine(FilesFolder, uniqueFileName);
+            var filePath = Path.Combine(_webRootPath, relativePath);
 
-            // Сохраняем файл на диск
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
                 await file.CopyToAsync(stream);
             }
 
-            // Создаем запись о файле
             var fileEntity = new Files
             {
                 FileName = file.FileName,
-                FilePath = filePath,
+                FilePath = relativePath,
                 UploadedAt = DateTime.UtcNow
             };
 
@@ -87,10 +89,11 @@ namespace LandingAPI.Services
         #endregion
 
         #region DeleteFileAsync
+
         /// <summary>
         /// Удаляет файл с сервера и из базы данных.
         /// </summary>
-        /// <param name="fileId">Идентификатор файла.</param>
+        /// <param name="fileId">Идентификатор файла, который необходимо удалить.</param>
         /// <returns>True, если удаление прошло успешно, иначе false.</returns>
         public async Task<bool> DeleteFileAsync(int fileId)
         {
@@ -98,33 +101,52 @@ namespace LandingAPI.Services
             if (file == null)
                 return false;
 
-            // Удаляем файл с диска
-            if (System.IO.File.Exists(file.FilePath))
+            var fullPath = Path.Combine(_webRootPath, file.FilePath);
+            if (System.IO.File.Exists(fullPath))
             {
-                System.IO.File.Delete(file.FilePath);
+                System.IO.File.Delete(fullPath);
             }
 
-            // Удаляем запись из базы данных
             await _filesRepository.DeleteFileAsync(file);
-
             return true;
         }
         #endregion
 
         #region GetFileStreamAsync
+
         /// <summary>
         /// Получает файл по его идентификатору.
         /// </summary>
-        /// <param name="fileId">Идентификатор файла.</param>
-        /// <returns>Информация о файле и поток для чтения.</returns>
+        /// <param name="fileId">Идентификатор файла, который необходимо получить.</param>
+        /// <returns>
+        /// Кортеж, содержащий информацию о файле и поток для чтения. 
+        /// Если файл не найден или не существует, возвращает (null, null).
+        /// </returns>
         public async Task<(Files file, Stream stream)> GetFileStreamAsync(int fileId)
         {
             var file = await _filesRepository.GetFileByIdAsync(fileId);
-            if (file == null || !System.IO.File.Exists(file.FilePath))
-                return (null, null);
+            if (file == null) return (null, null);
 
-            return (file, new FileStream(file.FilePath, FileMode.Open, FileAccess.Read));
+            var fullPath = Path.Combine(_webRootPath, file.FilePath);
+            if (!System.IO.File.Exists(fullPath)) return (null, null);
+
+            return (file, new FileStream(fullPath, FileMode.Open, FileAccess.Read));
         }
+        #endregion
+
+        #region GetFileUrl
+
+        /// <summary>
+        /// Генерирует полный URL для заданного файла на основе его пути и HTTP-запроса.
+        /// </summary>
+        /// <param name="file">Объект типа <see cref="Files"/>, представляющий файл, для которого необходимо сгенерировать URL.</param>
+        /// <param name="request">Объект типа <see cref="HttpRequest"/>, содержащий информацию о текущем HTTP-запросе, включая схему и хост.</param>
+        /// <returns>Возвращает строку, представляющую полный URL к файлу. Если файл равен null, возвращает null.</returns>
+        public string GetFileUrl(Files file, HttpRequest request)
+        {
+            return file == null ? null : $"{request.Scheme}://{request.Host}/{file.FilePath.Replace('\\', '/')}";
+        }
+
         #endregion
 
         #endregion

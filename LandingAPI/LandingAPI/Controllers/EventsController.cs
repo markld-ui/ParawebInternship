@@ -205,7 +205,7 @@ namespace LandingAPI.Controllers
                 {
                     FileId = event_.FileId.Value,
                     FileName = event_.File.FileName,
-                    DownloadUrl = Url.Action("DownloadFile", "Files", new { id = event_.FileId }, Request.Scheme)
+                    DownloadUrl = _fileService.GetFileUrl(event_.File, Request)
                 } : null
             });
         }
@@ -325,7 +325,7 @@ namespace LandingAPI.Controllers
         /// }
         /// ```
         /// </remarks>
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [MapToApiVersion("99.0")]
         [HttpPost]
         public async Task<ActionResult<EventDetailsDTO>> CreateEventAsync([FromForm] CreateEventDTO dto)
@@ -416,7 +416,7 @@ namespace LandingAPI.Controllers
         /// }
         /// ```
         /// </remarks>
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [MapToApiVersion("99.0")]
         [HttpPut("{id}")]
         public async Task<ActionResult<EventDetailsDTO>> UpdateEventAsync(int id, [FromBody] UpdateEventDTO dto)
@@ -477,7 +477,7 @@ namespace LandingAPI.Controllers
         /// 
         /// - 404 NotFound (если событие не найдено)
         /// </remarks>
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [MapToApiVersion("99.0")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteEventAsync(int id)
@@ -546,7 +546,7 @@ namespace LandingAPI.Controllers
                 {
                     FileId = event_.FileId.Value,
                     FileName = event_.File.FileName,
-                    DownloadUrl = Url.Action("DownloadFile", "Files", new { id = event_.FileId }, Request.Scheme)
+                    DownloadUrl = _fileService.GetFileUrl(event_.File, Request)
                 } : null
             };
         }

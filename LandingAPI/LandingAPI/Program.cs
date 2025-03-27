@@ -38,6 +38,7 @@ builder.Services.AddScoped<IFilesRepository, FilesRepository>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<JwtService>();
+builder.Services.AddScoped<FileService>();
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddApiVersioning(options =>
@@ -137,14 +138,6 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddScoped(provider =>
-{
-    var config = provider.GetRequiredService<IConfiguration>();
-    var uploadDirectory = Path.Combine(Directory.GetCurrentDirectory(), config["FileStorage:UploadDirectory"]);
-    var filesRepository = provider.GetRequiredService<IFilesRepository>();
-    return new FileService(filesRepository, uploadDirectory);
-});
-
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -180,6 +173,8 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseStaticFiles();
 
 app.MapControllers();
 

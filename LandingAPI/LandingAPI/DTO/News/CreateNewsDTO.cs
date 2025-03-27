@@ -34,6 +34,12 @@ namespace LandingAPI.DTO.News
         /// Файл, связанный с новостью (например, изображение). Необязательное поле.
         /// </summary>
         public IFormFile? File { get; set; }
+
+        /// <summary>
+        /// ID файла, связанного с новостью. Необязательное поле.
+        /// </summary>
+        /// <example>42</example>
+        public int? FileId { get; set; }
         #endregion
     }
     #endregion

@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Authorization;
 using LandingAPI.Interfaces.Auth;
 using LandingAPI.DTO.News;
 using LandingAPI.DTO.Users;
+using LandingAPI.DTO.Roles;
 using LandingAPI.Helper;
 
 #endregion
@@ -30,7 +31,9 @@ namespace LandingAPI.Controllers
     /// <summary>
     /// Контроллер для управления пользователями.
     /// </summary>
-    [Route("api/[controller]")]
+    [Route("api/v{version:apiVersion}/[controller]")]
+    [ApiVersion("1.0")]
+    [ApiVersion("99.0")]
     [ApiController]
     public class UsersController : Controller
     {
@@ -179,11 +182,11 @@ namespace LandingAPI.Controllers
         ///   "roles": [
         ///     {
         ///       "roleId": 1,
-        ///       "name": "Администратор"
+        ///       "name": "Admin"
         ///     },
         ///     {
         ///       "roleId": 2,
-        ///       "name": "Пользователь"
+        ///       "name": "User"
         ///     }
         ///   ]
         /// }

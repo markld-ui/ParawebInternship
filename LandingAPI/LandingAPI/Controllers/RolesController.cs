@@ -10,7 +10,10 @@
 #endregion
 
 using LandingAPI.DTO.Roles;
+using LandingAPI.DTO.Users;
+using LandingAPI.Helper;
 using LandingAPI.Interfaces.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,7 +25,7 @@ namespace LandingAPI.Controllers
     /// Предоставляет методы для назначения и удаления ролей, а также получения списка ролей пользователя.
     /// Доступ к методам контроллера разрешен только пользователям с ролью "Admin".
     /// </summary>
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ApiController]
     [ApiVersion("99.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
@@ -48,6 +51,77 @@ namespace LandingAPI.Controllers
 
         #region Методы
 
+        #region GetRoles
+
+        /// <summary>
+        /// Получает список всех ролей.
+        /// </summary>
+        /// <returns>
+        /// Возвращает <see cref="IActionResult"/>:
+        /// - 200 OK с списком ролей в формате <see cref="RoleDTO"/>.
+        /// - 400 BadRequest, если модель данных невалидна.
+        /// - 404 NotFound, если роли не найдены.
+        /// </returns>
+        /// <remarks>
+        /// ### Пример запроса:
+        /// GET /api/roles
+        /// 
+        /// ### Пример успешного ответа:
+        /// - **HTTP/1.1 200 OK**
+        /// ```json
+        /// {
+        ///   "data": [
+        ///     {
+        ///       "roleId": 1,
+        ///       "name": "Admin",
+        ///     },
+        ///     {
+        ///       "roleId": 2,
+        ///       "name": "User",
+        ///     }
+        ///   ],
+        ///   "totalCount": 2
+        /// }
+        /// ```
+        /// 
+        /// ### Пример ошибки (роли не найдены):
+        /// - **HTTP/1.1 404 Not Found**
+        /// ```json
+        /// {
+        ///   "error": "Роли не найдены"
+        /// }
+        /// ```
+        /// </remarks>
+        [HttpGet]
+        [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [MapToApiVersion("99.0")]
+        [ProducesResponseType(typeof(PagedResponse<RoleDTO>), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> GetRoles()
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var roles = await _roleRepository.GetRolesAsync();
+            if (roles == null || !roles.Any())
+                return NotFound("Роли не найдены");
+
+            var roleDtos = roles.Select(r => new RoleDTO
+            {
+                RoleId = r.RoleId,
+                Name = r.Name,
+            }).ToList();
+
+            return Ok(new PagedResponse<RoleDTO>
+            {
+                Data = roleDtos,
+                TotalCount = roleDtos.Count
+            });
+        }
+
+        #endregion
+
         #region AssignRole
         /// <summary>
         /// Назначает роль пользователю.
@@ -67,6 +141,7 @@ namespace LandingAPI.Controllers
         /// }
         /// </remarks>
         [HttpPost("assign")]
+        [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [MapToApiVersion("99.0")]
         public async Task<IActionResult> AssignRole([FromBody] AssignRoleDTO model)
         {
@@ -101,6 +176,7 @@ namespace LandingAPI.Controllers
         /// }
         /// </remarks>
         [HttpPost("remove")]
+        [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [MapToApiVersion("99.0")]
         public async Task<IActionResult> RemoveRole([FromBody] AssignRoleDTO model)
         {
@@ -131,6 +207,7 @@ namespace LandingAPI.Controllers
         /// GET /api/roles/1/roles
         /// </remarks>
         [HttpGet("{userId}/roles")]
+        [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [MapToApiVersion("99.0")]
         public async Task<IActionResult> GetUserRoles(int userId)
         {

@@ -68,7 +68,7 @@ namespace LandingAPI.Services.Auth
                 new Claim(ClaimTypes.Name, user.Username)
             };
 
-            foreach (var role in user.UserRoles.Select(ur => ur.Role))
+            foreach (var role in user.UserRoles.Select(ur => ur.Role).ToList())
             {
                 claims.Add(new Claim(ClaimTypes.Role, role.Name));
             }
