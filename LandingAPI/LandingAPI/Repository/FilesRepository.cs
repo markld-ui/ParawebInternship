@@ -17,6 +17,7 @@ using LandingAPI.Interfaces.Repositories;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Linq.Dynamic.Core;
 
 #endregion
 
@@ -108,15 +109,16 @@ namespace LandingAPI.Repository
             string sortField = "UploadedAt",
             bool ascending = false)
         {
+            var allowedFields = new[] { "FileId", "UploadedAt" };
+            if (!allowedFields.Contains(sortField))
+            {
+                sortField = "UploadedAt";
+            }
+
             var query = _context.Files.AsQueryable();
 
-            query = sortField switch
-            {
-                "FileName" => ascending ? query.OrderBy(f => f.FileName) : query.OrderByDescending(f => f.FileName),
-                "FileSize" => ascending ? query.OrderBy(f => new FileInfo(f.FilePath).Length)
-                                 : query.OrderByDescending(f => new FileInfo(f.FilePath).Length),
-                _ => ascending ? query.OrderBy(f => f.UploadedAt) : query.OrderByDescending(f => f.UploadedAt)
-            };
+            string orderDirection = ascending ? "ASC" : "DESC";
+            query = query.OrderBy($"{sortField} {orderDirection}");
 
             var totalCount = await query.CountAsync();
             var files = await query

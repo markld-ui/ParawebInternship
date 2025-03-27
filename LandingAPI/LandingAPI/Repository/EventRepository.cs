@@ -18,6 +18,7 @@ using LandingAPI.Interfaces.Repositories;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq.Dynamic.Core;
 
 #endregion
 
@@ -92,20 +93,22 @@ namespace LandingAPI.Repository
             string sortField = "EventId",
             bool ascending = true)
         {
+            var allowedFields = new[] { "EventId", "Title", "StartDate"};
+            if (!allowedFields.Contains(sortField))
+            {
+                sortField = "EventId";
+            }
+
             var query = _context.Events
                 .Include(e => e.CreatedBy)
                 .Include(e => e.File)
                 .AsQueryable();
 
-            query = sortField switch
-            {
-                "Title" => ascending ? query.OrderBy(e => e.Title) : query.OrderByDescending(e => e.Title),
-                "StartDate" => ascending ? query.OrderBy(e => e.StartDate) : query.OrderByDescending(e => e.StartDate),
-                "EndDate" => ascending ? query.OrderBy(e => e.EndDate) : query.OrderByDescending(e => e.EndDate),
-                _ => ascending ? query.OrderBy(e => e.EventId) : query.OrderByDescending(e => e.EventId)
-            };
+            string orderDirection = ascending ? "ASC" : "DESC";
+            query = query.OrderBy($"{sortField} {orderDirection}");
 
             var totalCount = await query.CountAsync();
+
             var events = await query
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)

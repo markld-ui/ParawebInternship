@@ -17,6 +17,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Linq.Dynamic.Core;
 
 #endregion
 
@@ -65,17 +66,19 @@ namespace LandingAPI.Repository
             string sortField = "NewsId",
             bool ascending = true)
         {
+            var allowedFields = new[] { "NewsId", "Title", "CreatedAt" };
+            if (!allowedFields.Contains(sortField))
+            {
+                sortField = "NewsId";
+            }
+
             var query = _context.News
                 .Include(n => n.File)
                 .Include(n => n.CreatedBy)
                 .AsQueryable();
 
-            query = sortField switch
-            {
-                "Title" => ascending ? query.OrderBy(n => n.Title) : query.OrderByDescending(n => n.Title),
-                "Content" => ascending ? query.OrderBy(n => n.Content) : query.OrderByDescending(n => n.Content),
-                _ => ascending ? query.OrderBy(n => n.NewsId) : query.OrderByDescending(n => n.NewsId)
-            };
+            string orderDirection = ascending ? "ASC" : "DESC";
+            query = query.OrderBy($"{sortField} {orderDirection}");
 
             var totalCount = await query.CountAsync();
             var news = await query

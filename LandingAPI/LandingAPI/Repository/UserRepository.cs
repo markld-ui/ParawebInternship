@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using System.Linq.Dynamic.Core;
 
 #endregion
 
@@ -66,14 +67,16 @@ namespace LandingAPI.Repository
             string sortField = "UserId",
             bool ascending = true)
         {
+            var allowedFields = new[] { "UserId", "Username" };
+            if (!allowedFields.Contains(sortField))
+            {
+                sortField = "UserId";
+            }
+
             var query = _context.Users.AsQueryable();
 
-            query = sortField switch
-            {
-                "Email" => ascending ? query.OrderBy(u => u.Email) : query.OrderByDescending(u => u.Email),
-                "Username" => ascending ? query.OrderBy(u => u.Username) : query.OrderByDescending(u => u.Username),
-                _ => ascending ? query.OrderBy(u => u.UserId) : query.OrderByDescending(u => u.UserId)
-            };
+            string orderDirection = ascending ? "ASC" : "DESC";
+            query = query.OrderBy($"{sortField} {orderDirection}");
 
             var totalCount = await query.CountAsync();
             var users = await query
