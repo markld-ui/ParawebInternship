@@ -155,9 +155,9 @@ namespace LandingAPI.Repository
         /// </summary>
         /// <param name="email">Электронная почта пользователя.</param>
         /// <returns>Пользователь, если найден, иначе <c>null</c>.</returns>
-        public async Task<User> GetUserByEmailAsync(string email)
+        public async Task<User?> GetUserByEmailAsync(string email)
         {
-            return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            return await _context.Users.Include(u => u.UserRoles).ThenInclude(r => r.Role).FirstOrDefaultAsync(u => u.Email == email);
         }
         #endregion
 

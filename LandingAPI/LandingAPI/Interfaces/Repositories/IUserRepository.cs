@@ -60,7 +60,7 @@ namespace LandingAPI.Interfaces.Repositories
         /// </summary>
         /// <param name="email">Электронная почта пользователя.</param>
         /// <returns>Пользователь, если найден, иначе <c>null</c>.</returns>
-        Task<User> GetUserByEmailAsync(string email);
+        Task<User?> GetUserByEmailAsync(string email);
 
         /// <summary>
         /// Получает список новостей, созданных определенным пользователем.

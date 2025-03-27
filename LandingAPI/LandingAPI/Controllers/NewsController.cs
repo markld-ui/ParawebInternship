@@ -32,7 +32,9 @@ namespace LandingAPI.Controllers
     /// <summary>
     /// Контроллер для управления новостями.
     /// </summary>
-    [Route("api/[controller]")]
+    [Route("api/v{version:apiVersion}/[controller]")]
+    [ApiVersion("1.0")]
+    [ApiVersion("99.0")]
     [ApiController]
     public class NewsController : Controller
     {
@@ -127,6 +129,8 @@ namespace LandingAPI.Controllers
         /// ```
         /// </remarks>
         [HttpGet]
+        [MapToApiVersion("1.0")]
+        [MapToApiVersion("99.0")]
         [ProducesResponseType(typeof(PagedResponse<NewsShortDTO>), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -209,6 +213,8 @@ namespace LandingAPI.Controllers
         /// ```
         /// </remarks>
         [HttpGet("{id}")]
+        [MapToApiVersion("1.0")]
+        [MapToApiVersion("99.0")]
         [ProducesResponseType(typeof(NewsDetailsDTO), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(400)]
@@ -269,6 +275,8 @@ namespace LandingAPI.Controllers
         /// ```
         /// </remarks>
         [HttpGet("search/{title}")]
+        [MapToApiVersion("1.0")]
+        [MapToApiVersion("99.0")]
         [ProducesResponseType(typeof(IEnumerable<NewsDetailsDTO>), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(400)]
@@ -334,6 +342,7 @@ namespace LandingAPI.Controllers
         /// ```
         /// </remarks>
         [Authorize(Roles = "Admin")]
+        [MapToApiVersion("99.0")]
         [HttpPost]
         public async Task<ActionResult<NewsDetailsDTO>> CreateNews([FromForm] CreateNewsDTO dto)
         {
@@ -422,6 +431,7 @@ namespace LandingAPI.Controllers
         /// ```
         /// </remarks>
         [Authorize(Roles = "Admin")]
+        [MapToApiVersion("99.0")]
         [HttpPut("{id}")]
         public async Task<ActionResult<NewsDetailsDTO>> UpdateNews(int id, [FromForm] UpdateNewsDTO dto)
         {
@@ -485,6 +495,7 @@ namespace LandingAPI.Controllers
         /// ```
         /// </remarks>
         [Authorize(Roles = "Admin")]
+        [MapToApiVersion("99.0")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteNews(int id)
         {

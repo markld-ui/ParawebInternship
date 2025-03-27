@@ -22,6 +22,7 @@ using LandingAPI.Interfaces.Repositories;
 using LandingAPI.Models;
 using LandingAPI.Repository;
 using LandingAPI.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -34,7 +35,9 @@ namespace LandingAPI.Controllers
     /// <summary>
     /// Контроллер для управления событиями.
     /// </summary>
-    [Route("api/[controller]")]
+    [Route("api/v{version:apiVersion}/[controller]")]
+    [ApiVersion("1.0")]
+    [ApiVersion("99.0")]
     [ApiController]
     public class EventsController : ControllerBase
     {
@@ -92,6 +95,8 @@ namespace LandingAPI.Controllers
         /// <response code="400">Если параметры запроса невалидны</response>
         /// <response code="404">Если события не найдены</response>
         [HttpGet]
+        [MapToApiVersion("1.0")]
+        [MapToApiVersion("99.0")]
         [ProducesResponseType(typeof(PagedResponse<EventShortDTO>), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -171,6 +176,8 @@ namespace LandingAPI.Controllers
         /// <response code="400">Если идентификатор невалиден</response>
         /// <response code="404">Если событие не найдено</response>
         [HttpGet("{id}")]
+        [MapToApiVersion("1.0")]
+        [MapToApiVersion("99.0")]
         [ProducesResponseType(typeof(EventDetailsDTO), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -249,6 +256,8 @@ namespace LandingAPI.Controllers
         /// <response code="400">Если модель данных невалидна или отсутствует параметр userId</response>
         /// <response code="404">Если события не найдены для указанного пользователя</response>
         [HttpGet("search")]
+        [MapToApiVersion("1.0")]
+        [MapToApiVersion("99.0")]
         [ProducesResponseType(typeof(IEnumerable<EventDTO>), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -317,6 +326,7 @@ namespace LandingAPI.Controllers
         /// ```
         /// </remarks>
         [Authorize(Roles = "Admin")]
+        [MapToApiVersion("99.0")]
         [HttpPost]
         public async Task<ActionResult<EventDetailsDTO>> CreateEventAsync([FromForm] CreateEventDTO dto)
         {
@@ -407,6 +417,7 @@ namespace LandingAPI.Controllers
         /// ```
         /// </remarks>
         [Authorize(Roles = "Admin")]
+        [MapToApiVersion("99.0")]
         [HttpPut("{id}")]
         public async Task<ActionResult<EventDetailsDTO>> UpdateEventAsync(int id, [FromBody] UpdateEventDTO dto)
         {
@@ -467,6 +478,7 @@ namespace LandingAPI.Controllers
         /// - 404 NotFound (если событие не найдено)
         /// </remarks>
         [Authorize(Roles = "Admin")]
+        [MapToApiVersion("99.0")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteEventAsync(int id)
         {

@@ -28,7 +28,9 @@ namespace LandingAPI.Controllers
     /// <summary>
     /// Контроллер для управления файлами.
     /// </summary>
-    [Route("/api/[controller]")]
+    [Route("api/v{version:apiVersion}/[controller]")]
+    [ApiVersion("1.0")]
+    [ApiVersion("99.0")]
     [ApiController]
     public class FilesController : Controller
     {
@@ -107,6 +109,8 @@ namespace LandingAPI.Controllers
         /// ```
         /// </remarks>
         [HttpGet]
+        [MapToApiVersion("1.0")]
+        [MapToApiVersion("99.0")]
         [ProducesResponseType(typeof(PagedResponse<FileDetailsDTO>), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -175,6 +179,8 @@ namespace LandingAPI.Controllers
         /// ```
         /// </remarks>
         [HttpGet("{id}")]
+        [MapToApiVersion("1.0")]
+        [MapToApiVersion("99.0")]
         [ProducesResponseType(typeof(FileDetailsDTO), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -238,6 +244,8 @@ namespace LandingAPI.Controllers
         /// ```
         /// </remarks>
         [HttpGet("news/{newsId}")]
+        [MapToApiVersion("1.0")]
+        [MapToApiVersion("99.0")]
         [ProducesResponseType(typeof(IEnumerable<FilesDTO>), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -301,6 +309,8 @@ namespace LandingAPI.Controllers
         /// ```
         /// </remarks>
         [HttpGet("events/{eventId}")]
+        [MapToApiVersion("1.0")]
+        [MapToApiVersion("99.0")]
         [ProducesResponseType(typeof(IEnumerable<FilesDTO>), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -371,6 +381,8 @@ namespace LandingAPI.Controllers
         /// ```
         /// </remarks>
         [HttpPost("upload")]
+        [MapToApiVersion("1.0")]
+        [MapToApiVersion("99.0")]
         [ProducesResponseType(typeof(FileDetailsDTO), 200)]
         public async Task<IActionResult> UploadFile([FromForm] FileUploadDTO dto)
         {
@@ -427,6 +439,8 @@ namespace LandingAPI.Controllers
         /// ```
         /// </remarks>
         [HttpGet("download/{id}")]
+        [MapToApiVersion("1.0")]
+        [MapToApiVersion("99.0")]
         public async Task<IActionResult> DownloadFile(int id)
         {
             var (file, stream) = await _fileService.GetFileStreamAsync(id);
@@ -466,6 +480,8 @@ namespace LandingAPI.Controllers
         /// ```
         /// </remarks>
         [HttpDelete("{id}")]
+        [MapToApiVersion("1.0")]
+        [MapToApiVersion("99.0")]
         public async Task<IActionResult> DeleteFile(int id)
         {
             var result = await _fileService.DeleteFileAsync(id);

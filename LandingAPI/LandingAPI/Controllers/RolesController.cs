@@ -24,7 +24,8 @@ namespace LandingAPI.Controllers
     /// </summary>
     [Authorize(Roles = "Admin")]
     [ApiController]
-    [Route("api/[controller]")]
+    [ApiVersion("99.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public class RolesController : Controller
     {
         #region Поля и свойства
@@ -66,6 +67,7 @@ namespace LandingAPI.Controllers
         /// }
         /// </remarks>
         [HttpPost("assign")]
+        [MapToApiVersion("99.0")]
         public async Task<IActionResult> AssignRole([FromBody] AssignRoleDTO model)
         {
             try
@@ -99,6 +101,7 @@ namespace LandingAPI.Controllers
         /// }
         /// </remarks>
         [HttpPost("remove")]
+        [MapToApiVersion("99.0")]
         public async Task<IActionResult> RemoveRole([FromBody] AssignRoleDTO model)
         {
             try
@@ -128,6 +131,7 @@ namespace LandingAPI.Controllers
         /// GET /api/roles/1/roles
         /// </remarks>
         [HttpGet("{userId}/roles")]
+        [MapToApiVersion("99.0")]
         public async Task<IActionResult> GetUserRoles(int userId)
         {
             var user = await _userRepository.GetUserByIdAsync(userId);

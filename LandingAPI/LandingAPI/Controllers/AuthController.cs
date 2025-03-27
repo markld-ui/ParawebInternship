@@ -28,7 +28,9 @@ namespace LandingAPI.Controllers
     /// <summary>
     /// Контроллер для управления аутентификацией и регистрацией пользователей.
     /// </summary>
-    [Route("api/[controller]")]
+    [Route("api/v{version:apiVersion}/[controller]")]
+    [ApiVersion("1.0")]
+    [ApiVersion("99.0")]
     [ApiController]
     public class AuthController : Controller
     {
@@ -105,6 +107,8 @@ namespace LandingAPI.Controllers
         /// ```
         /// </remarks>
         [HttpPost("register")]
+        [MapToApiVersion("1.0")]
+        [MapToApiVersion("99.0")]
         public async Task<IActionResult> Register([FromBody] RegisterDTO model)
         {
             try
@@ -188,6 +192,8 @@ namespace LandingAPI.Controllers
         /// ```
         /// </remarks>
         [HttpPost("login")]
+        [MapToApiVersion("1.0")]
+        [MapToApiVersion("99.0")]
         public async Task<IActionResult> Login([FromBody] LoginDTO model)
         {
             if (!ModelState.IsValid)
@@ -254,6 +260,8 @@ namespace LandingAPI.Controllers
         /// ```
         /// </remarks>
         [HttpPost("refresh")]
+        [MapToApiVersion("1.0")]
+        [MapToApiVersion("99.0")]
         public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenDTO model)
         {
             var principal = _jwtService.GetPrincipalFromExpiredToken(model.Token);
