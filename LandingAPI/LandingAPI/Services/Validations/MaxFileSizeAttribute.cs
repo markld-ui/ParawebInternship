@@ -13,6 +13,7 @@ namespace LandingAPI.Services.Validations
     /// Атрибут валидации для ограничения максимального размера загружаемого файла.
     /// Наследует класс <see cref="ValidationAttribute"/> и переопределяет метод <see cref="IsValid(object, ValidationContext)"/>.
     /// </summary>
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
     public class MaxFileSizeAttribute : ValidationAttribute
     {
         #region Поля 
