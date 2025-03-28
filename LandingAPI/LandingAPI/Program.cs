@@ -97,18 +97,6 @@ builder.Services.AddSwaggerGen(c =>
         Description = "API для администраторов",
         Contact = new OpenApiContact { Name = "Admin Support", Email = "admin@example.com" }
     });
-
-    c.DocInclusionPredicate((docName, apiDesc) =>
-    {
-        if (!apiDesc.TryGetMethodInfo(out MethodInfo methodInfo)) return false;
-
-        var versions = methodInfo.DeclaringType
-            .GetCustomAttributes(true)
-            .OfType<ApiVersionAttribute>()
-            .SelectMany(attr => attr.Versions);
-
-        return versions.Any(v => $"v{v.MajorVersion}" == docName);
-    });
 });
 
 
