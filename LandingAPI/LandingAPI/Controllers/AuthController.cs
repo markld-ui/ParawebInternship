@@ -18,6 +18,7 @@ using LandingAPI.Interfaces.Auth;
 using LandingAPI.Interfaces.Repositories;
 using System.Security.Claims;
 using LandingAPI.DTO.Auth;
+using Microsoft.AspNetCore.Authorization;
 
 #endregion
 
@@ -219,6 +220,80 @@ namespace LandingAPI.Controllers
             });
         }
 
+        #endregion
+
+        #region ChangePassword
+
+        /// <summary>
+        /// Изменяет пароль пользователя.
+        /// </summary>
+        /// <param name="model">Модель данных для изменения пароля.</param>
+        /// <returns>
+        /// Возвращает <see cref="IActionResult"/>:
+        /// - 200 OK при успешном изменении пароля.
+        /// - 400 BadRequest, если модель данных невалидна или текущий пароль неверен.
+        /// - 401 Unauthorized, если пользователь не аутентифицирован.
+        /// - 500 InternalServerError, если произошла ошибка при изменении пароля.
+        /// </returns>
+        /// <remarks>
+        /// ### Пример запроса:
+        /// POST /api/auth/change-password
+        /// ```json
+        /// {
+        ///   "currentPassword": "oldPassword123",
+        ///   "newPassword": "newSecurePassword456"
+        /// }
+        /// ```
+        /// 
+        /// ### Пример успешного ответа:
+        /// ```json
+        /// {
+        ///   "message": "Пароль успешно изменен"
+        /// }
+        /// ```
+        /// 
+        /// ### Пример ошибки:
+        /// ```json
+        /// {
+        ///   "error": "Текущий пароль неверен"
+        /// }
+        /// ```
+        /// </remarks>
+        [Authorize]
+        [HttpPost("change-password")]
+        [MapToApiVersion("1.0")]
+        [MapToApiVersion("99.0")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDTO model)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
+                var user = await _userRepository.GetUserByIdAsync(userId);
+                if (user == null)
+                    return Unauthorized();
+
+                if (!_passwordHasher.Verify(model.CurrentPassword, user.PasswordHash))
+                {
+                    _logger.LogWarning("Неверная попытка изменения пароля для пользователя с ID: {UserId}", userId);
+                    return BadRequest("Текущий пароль неверный!");
+                }
+
+                user.PasswordHash = _passwordHasher.Generate(model.NewPassword);
+                await _userRepository.UpdateUserAsync(user);
+
+                _logger.LogInformation("Пароль успешно изменен для пользователя с ID: {UserId}", userId);
+                return Ok(new { message = "Пароль успешно изменен" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при изменении пароля");
+                return StatusCode(500, "Произошла ошибка при изменении пароля");
+            }
+        }
         #endregion
 
         #region Refresh
