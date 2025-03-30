@@ -47,6 +47,7 @@ namespace LandingAPI.Controllers
         private readonly IMapper _mapper;
         private readonly IFilesRepository _filesRepository;
         private readonly FileService _fileService;
+        private readonly IUserRepository _userRepository;
 
         #endregion
 
@@ -59,12 +60,17 @@ namespace LandingAPI.Controllers
         /// <param name="mapper">Объект для маппинга данных между моделями и DTO.</param>
         /// <param name="filesRepository">Репозиторий для работы с файлами.</param>
         /// <param name="fileService">Сервис для работы с файлами</param>
-        public EventsController(IEventRepository eventRepository, IMapper mapper, IFilesRepository filesRepository, FileService fileService)
+        public EventsController(IEventRepository eventRepository, 
+            IMapper mapper, 
+            IFilesRepository filesRepository,
+            IUserRepository userRepository,
+            FileService fileService)
         {
             _eventRepository = eventRepository;
             _mapper = mapper;
             _filesRepository = filesRepository;
             _fileService = fileService;
+            _userRepository = userRepository;
         }
 
         #endregion
@@ -528,6 +534,17 @@ namespace LandingAPI.Controllers
         /// </remarks>
         private async Task<EventDetailsDTO> MapToDetailsDTO(Event event_)
         {
+            string userName = string.Empty;
+            if (event_.CreatedBy != null)
+            {
+                userName = event_.CreatedBy.Username;
+            }
+            else
+            {
+                var user = await _userRepository.GetUserByIdAsync(event_.CreatedById);
+                userName = user?.Username ?? string.Empty;
+            }
+
             return new EventDetailsDTO
             {
                 EventId = event_.EventId,
@@ -540,13 +557,13 @@ namespace LandingAPI.Controllers
                 CreatedBy = new AuthorDTO
                 {
                     UserId = event_.CreatedById,
-                    UserName = event_.CreatedBy.Username
+                    UserName = userName
                 },
                 File = event_.FileId.HasValue ? new FileInfoDTO
                 {
                     FileId = event_.FileId.Value,
-                    FileName = event_.File.FileName,
-                    DownloadUrl = _fileService.GetFileUrl(event_.File, Request)
+                    FileName = event_.File?.FileName ?? string.Empty,
+                    DownloadUrl = event_.File != null ? _fileService.GetFileUrl(event_.File, Request) : string.Empty
                 } : null
             };
         }

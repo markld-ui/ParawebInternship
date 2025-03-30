@@ -22,6 +22,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System.Security.Claims;
 
 #endregion
@@ -44,6 +45,7 @@ namespace LandingAPI.Controllers
         private readonly INewsRepository _newsRepository;
         private readonly IMapper _mapper;
         private readonly IFilesRepository _filesRepository;
+        private readonly IUserRepository _userRepository;
         private readonly FileService _fileService;
 
         #endregion
@@ -57,12 +59,17 @@ namespace LandingAPI.Controllers
         /// <param name="mapper">Объект для маппинга данных между моделями и DTO.</param>
         /// <param name="filesRepository">Репозиторий для работы с файлами.</param>
         /// <param name="fileService">Сервис для работы с файлами</param>
-        public NewsController(INewsRepository newsRepository, IMapper mapper, IFilesRepository filesRepository, FileService fileService)
+        public NewsController(INewsRepository newsRepository, 
+            IMapper mapper, 
+            IFilesRepository filesRepository, 
+            IUserRepository userRepository,
+            FileService fileService)
         {
             _newsRepository = newsRepository;
             _mapper = mapper;
             _filesRepository = filesRepository;
             _fileService = fileService;
+            _userRepository = userRepository;
         }
 
         #endregion
@@ -546,6 +553,17 @@ namespace LandingAPI.Controllers
         /// </remarks>
         private async Task<NewsDetailsDTO> MapToDetailsDTO(News news)
         {
+            string userName = string.Empty;
+            if (news.CreatedBy != null)
+            {
+                userName = news.CreatedBy.Username;
+            }
+            else
+            {
+                var user = await _userRepository.GetUserByIdAsync(news.CreatedById);
+                userName = user?.Username ?? string.Empty;
+            }
+
             return new NewsDetailsDTO
             {
                 NewsId = news.NewsId,
@@ -555,7 +573,7 @@ namespace LandingAPI.Controllers
                 CreatedBy = new AuthorDTO
                 {
                     UserId = news.CreatedById,
-                    UserName = news.CreatedBy.Username
+                    UserName = userName
                 },
                 File = news.FileId.HasValue ? new FileInfoDTO
                 {

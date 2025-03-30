@@ -262,7 +262,6 @@ namespace LandingAPI.Controllers
         [Authorize]
         [HttpPost("change-password")]
         [MapToApiVersion("1.0")]
-        [MapToApiVersion("99.0")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDTO model)
         {
             try
